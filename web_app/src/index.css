@@ -1,0 +1,97 @@
+:root {
+  /* Artisan Indian Warm Craft Palette */
+  --color-terracotta: #B84A2E;
+  --color-terracotta-dark: #93361E;
+  --color-terracotta-light: #FDEEE9;
+  --color-terracotta-border: #E8B4A4;
+
+  --color-turmeric: #D97706;
+  --color-turmeric-light: #FEF3C7;
+  --color-turmeric-dark: #B45309;
+
+  --color-indigo: #1E293B;
+  --color-indigo-dark: #0F172A;
+  --color-indigo-muted: #475569;
+  --color-indigo-light: #F1F5F9;
+
+  --color-bg-parchment: #FAF7F2;
+  --color-bg-surface: #FFFFFF;
+  --color-bg-warm-card: #F5EFE6;
+  --color-border-warm: #E6DCCD;
+  --color-border-subtle: #ECE5DA;
+
+  --color-success: #16A34A;
+  --color-success-bg: #DCFCE7;
+  --color-success-border: #86EFAC;
+
+  --color-shared: #2563EB;
+  --color-shared-bg: #DBEAFE;
+  --color-shared-border: #93C5FD;
+
+  --color-draft: #D97706;
+  --color-draft-bg: #FEF3C7;
+  --color-draft-border: #FDE68A;
+
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Devanagari", "Noto Sans Telugu", Helvetica, Arial, sans-serif;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 12px rgba(184, 74, 46, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 25px rgba(184, 74, 46, 0.12), 0 4px 10px rgba(0, 0, 0, 0.06);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  --header-height: 72px;
+  --sidebar-width: 260px;
+  --bottom-nav-height: 68px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--color-bg-parchment);
+  color: var(--color-indigo);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button, input, textarea, select {
+  font-family: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Scrollbar polish */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-parchment);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-warm);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-terracotta-border);
+}
