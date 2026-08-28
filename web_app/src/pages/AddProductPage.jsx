@@ -3,8 +3,8 @@ import { useApp } from "../context/AppContext";
 import { StepProgress } from "../components/add-product/StepProgress";
 import { Step1Photo } from "../components/add-product/Step1Photo";
 import { Step2Voice } from "../components/add-product/Step2Voice";
-import { Step3AICatalog } from "../components/add-product/Step3AICatalog";
 import { Step4SmartPrice } from "../components/add-product/Step4SmartPrice";
+import { Step3AICatalog } from "../components/add-product/Step3AICatalog";
 import { Step5Preview } from "../components/add-product/Step5Preview";
 
 export const AddProductPage = () => {
@@ -60,16 +60,16 @@ export const AddProductPage = () => {
       {/* Top Breadcrumb & Progress Header */}
       <div className="add-product-page__header">
         <div className="page-title-wrap">
-          <h1 className="page-title">AI Craft Cataloging Wizard</h1>
+          <h1 className="page-title">Add New Creation</h1>
           <p className="page-subtitle">
-            5 simple steps to digitize, price, and showcase your handmade craft
+            5 simple steps to digitize, price, catalog, and showcase your handmade craft
           </p>
         </div>
 
         <StepProgress currentStep={activeStep} onStepClick={(step) => setActiveStep(step)} />
       </div>
 
-      {/* Step Components */}
+      {/* Step Components in order: Photo -> Voice -> Smart Price -> AI Catalog -> Preview */}
       <div className="add-product-page__content">
         {activeStep === 1 && (
           <Step1Photo
@@ -89,7 +89,7 @@ export const AddProductPage = () => {
         )}
 
         {activeStep === 3 && (
-          <Step3AICatalog
+          <Step4SmartPrice
             formData={formData}
             updateFormData={updateFormData}
             onNext={handleNext}
@@ -98,7 +98,7 @@ export const AddProductPage = () => {
         )}
 
         {activeStep === 4 && (
-          <Step4SmartPrice
+          <Step3AICatalog
             formData={formData}
             updateFormData={updateFormData}
             onNext={handleNext}

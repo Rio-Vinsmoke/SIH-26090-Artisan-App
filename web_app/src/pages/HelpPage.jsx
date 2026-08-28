@@ -36,7 +36,7 @@ export const HelpPage = () => {
       icon: <TagIcon size={28} />,
       title: "How Smart Pricing Protects You",
       titleHi: "उचित मूल्य कैसे तय करें?",
-      desc: "KalaSetu calculates a guaranteed fair hourly wage for every crafting hour plus 100% of your raw material costs, preventing middlemen underpricing.",
+      desc: "SrishtiConnect calculates a guaranteed fair hourly wage for every crafting hour plus 100% of your raw material costs, preventing middlemen underpricing.",
       audioTip: "Never sell below the Fair Minimum rate."
     },
     {
@@ -79,7 +79,7 @@ export const HelpPage = () => {
             <MicIcon size={40} />
           </div>
           <div className="voice-assistant-card__content">
-            <h2 className="voice-assistant-card__title">Have a Question? Speak to KalaSetu</h2>
+            <h2 className="voice-assistant-card__title">Have a Question? Speak to SrishtiConnect</h2>
             <p className="voice-assistant-card__sub">
               Tap any common question below or ask in your native language:
             </p>

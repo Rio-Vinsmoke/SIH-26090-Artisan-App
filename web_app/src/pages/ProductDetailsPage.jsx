@@ -33,7 +33,7 @@ export const ProductDetailsPage = () => {
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard?.writeText?.(p.marketLink || `https://kalasetu.artisan.in/item/${p.id}`);
+    navigator.clipboard?.writeText?.(p.marketLink || `https://srishticonnect.artisan.in/item/${p.id}`);
     showToast("🔗 Buyer share link copied to clipboard!");
   };
 
@@ -252,7 +252,7 @@ export const ProductDetailsPage = () => {
                   <input
                     type="text"
                     readOnly
-                    value={p.marketLink || `https://kalasetu.artisan.in/item/${p.id}`}
+                    value={p.marketLink || `https://srishticonnect.artisan.in/item/${p.id}`}
                     className="link-input"
                   />
                   <button

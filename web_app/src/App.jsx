@@ -2,7 +2,7 @@ import { AppProvider, useApp } from "./context/AppContext";
 import { Header } from "./components/layout/Header";
 import { Sidebar } from "./components/layout/Sidebar";
 import { MobileBottomNav } from "./components/layout/MobileBottomNav";
-import { WelcomePage } from "./pages/WelcomePage";
+import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { AddProductPage } from "./pages/AddProductPage";
 import { CatalogPage } from "./pages/CatalogPage";
@@ -12,11 +12,11 @@ import { HelpPage } from "./pages/HelpPage";
 import "./App.css";
 
 const MainContentRouter = () => {
-  const { currentScreen, hasCompletedOnboarding } = useApp();
+  const { currentScreen, isAuthenticated } = useApp();
 
-  // If artisan hasn't completed onboarding or screen is explicitly 'welcome'
-  if (!hasCompletedOnboarding || currentScreen === "welcome") {
-    return <WelcomePage />;
+  // If user is not authenticated or explicitly on login screen, show LoginPage
+  if (!isAuthenticated || currentScreen === "login") {
+    return <LoginPage />;
   }
 
   return (

@@ -20,7 +20,7 @@ export const CatalogPage = () => {
   });
 
   const handleQuickShare = (product) => {
-    navigator.clipboard?.writeText?.(product.marketLink || "https://kalasetu.artisan.in");
+    navigator.clipboard?.writeText?.(product.marketLink || "https://srishticonnect.artisan.in");
     showToast(`🔗 Link for "${product.name}" copied to clipboard! Ready to share.`);
   };
 

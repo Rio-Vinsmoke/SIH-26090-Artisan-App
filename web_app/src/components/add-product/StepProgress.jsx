@@ -4,8 +4,8 @@ export const StepProgress = ({ currentStep, onStepClick }) => {
   const steps = [
     { num: 1, label: "Photo", labelHi: "फोटो", icon: <CameraIcon size={16} /> },
     { num: 2, label: "Voice", labelHi: "आवाज़", icon: <MicIcon size={16} /> },
-    { num: 3, label: "AI Catalog", labelHi: "कैटलॉग", icon: <SparklesIcon size={16} /> },
-    { num: 4, label: "Smart Price", labelHi: "मूल्य", icon: <TagIcon size={16} /> },
+    { num: 3, label: "Smart Price", labelHi: "मूल्य", icon: <TagIcon size={16} /> },
+    { num: 4, label: "AI Catalog", labelHi: "कैटलॉग", icon: <SparklesIcon size={16} /> },
     { num: 5, label: "Preview", labelHi: "जांचें", icon: <EyeIcon size={16} /> }
   ];
 
@@ -51,4 +51,3 @@ export const StepProgress = ({ currentStep, onStepClick }) => {
     </div>
   );
 };
-

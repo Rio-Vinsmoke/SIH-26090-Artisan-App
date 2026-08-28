@@ -23,7 +23,7 @@ export const MobileBottomNav = () => {
     },
     {
       id: "add_product",
-      label: t.addProduct,
+      label: "Add",
       icon: <PlusCircleIcon size={26} />,
       isCenterAction: true
     },
@@ -53,7 +53,7 @@ export const MobileBottomNav = () => {
               type="button"
               className={`mobile-nav__center-btn ${isActive ? "mobile-nav__center-btn--active" : ""}`}
               onClick={() => navigateTo(item.id)}
-              aria-label={item.label}
+              aria-label="Add New Creation"
             >
               <div className="center-btn-circle">
                 {item.icon}
@@ -79,4 +79,3 @@ export const MobileBottomNav = () => {
     </nav>
   );
 };
-

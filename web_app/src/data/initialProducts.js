@@ -20,7 +20,7 @@ export const initialProducts = [
     description: "Exquisite traditional Chanderi saree woven on pit looms with intricate floral zari bootis. Lightweight, sheer texture, and radiant natural silk luster.",
     descriptionHindi: "पारंपरिक गड्ढा करघे पर बुनी गई उत्कृष्ट चंदेरी साड़ी जिसमें बारीक ज़री की बूटियां हैं। यह हल्की, पारदर्शी और रेशम की प्राकृतिक चमक से युक्त है।",
     buyerChannel: "ONDC Crafts / State Emporium",
-    marketLink: "https://kalasetu.artisan.in/item/chanderi-saree-26090",
+    marketLink: "https://srishticonnect.artisan.in/item/chanderi-saree-26090",
     createdAt: "2026-08-20"
   },
   {
@@ -44,7 +44,7 @@ export const initialProducts = [
     description: "Wheel-thrown and kiln-fired natural clay decorative urli pot. Features hand-carved ethnic petal patterns ideal for floating flowers and festive diyas.",
     descriptionHindi: "चाक पर गढ़ी और भट्टी में पकाई गई प्राकृतिक मिट्टी की सजावटी उर्ली। इसमें फूलों और दीयों के लिए हाथ से उकेरी गई सुंदर पंखुड़ियों की नक्काशी है।",
     buyerChannel: "TRIFED / FabIndia Artisan Hub",
-    marketLink: "https://kalasetu.artisan.in/item/terracotta-urli-26090",
+    marketLink: "https://srishticonnect.artisan.in/item/terracotta-urli-26090",
     createdAt: "2026-08-22"
   },
   {
@@ -68,7 +68,7 @@ export const initialProducts = [
     description: "Hand-split and woven durable bamboo basket with reinforced rim. 100% biodegradable, treated with organic neem oil for pest resistance.",
     descriptionHindi: "मजबूत और टिकाऊ बांस की हाथ से बुनी टोकरी। 100% पर्यावरण-अनुकूल, दीमक से बचाव के लिए नीम के तेल से प्राकृतिक रूप से उपचारित।",
     buyerChannel: "Crafts Council / Export Linkage",
-    marketLink: "https://kalasetu.artisan.in/item/bamboo-basket-26090",
+    marketLink: "https://srishticonnect.artisan.in/item/bamboo-basket-26090",
     createdAt: "2026-08-25"
   },
   {
@@ -92,7 +92,7 @@ export const initialProducts = [
     description: "Authentic freehand pen-drawn Kalamkari canvas illustrating the mythological Tree of Life with birds and sacred flora. Dyed purely using alum, myrobalan, and pomegranate peel.",
     descriptionHindi: "प्राकृतिक रंगों और बांस की कलम से बनी प्रामाणिक कलमकारी पेंटिंग जिसमें जीवन का वृक्ष और पक्षी दर्शाए गए हैं।",
     buyerChannel: "Direct Exhibition / Dastkar Mela",
-    marketLink: "https://kalasetu.artisan.in/item/kalamkari-art-26090",
+    marketLink: "https://srishticonnect.artisan.in/item/kalamkari-art-26090",
     createdAt: "2026-08-26"
   },
   {
@@ -116,8 +116,7 @@ export const initialProducts = [
     description: "GI-tagged smooth lathe-turned wooden nesting bird figurines. Safe for children, coated with non-toxic vegetal lacquer polished with screw pine leaves.",
     descriptionHindi: "जीआई-टैग्ड सुरक्षित और प्राकृतिक रंगों से बने चन्नापटना के पारंपरिक लकड़ी के खिलौने। बच्चों के लिए पूर्णतया सुरक्षित और सुंदर।",
     buyerChannel: "ONDC Toys / Craft Emporium",
-    marketLink: "https://kalasetu.artisan.in/item/channapatna-toy-26090",
+    marketLink: "https://srishticonnect.artisan.in/item/channapatna-toy-26090",
     createdAt: "2026-08-27"
   }
 ];
-

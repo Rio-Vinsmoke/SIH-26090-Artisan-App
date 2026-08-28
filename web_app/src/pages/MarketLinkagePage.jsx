@@ -14,12 +14,12 @@ export const MarketLinkagePage = () => {
 
   const handleShareProduct = (product) => {
     updateProductStatus(product.id, "Shared");
-    navigator.clipboard?.writeText?.(product.marketLink || `https://kalasetu.artisan.in/item/${product.id}`);
+    navigator.clipboard?.writeText?.(product.marketLink || `https://srishticonnect.artisan.in/item/${product.id}`);
     showToast(`🚀 "${product.name}" marked as Sent to Market and link copied!`);
   };
 
   const handleCopyLink = (product) => {
-    navigator.clipboard?.writeText?.(product.marketLink || `https://kalasetu.artisan.in/item/${product.id}`);
+    navigator.clipboard?.writeText?.(product.marketLink || `https://srishticonnect.artisan.in/item/${product.id}`);
     showToast(`🔗 Buyer link for "${product.name}" copied to clipboard!`);
   };
 
@@ -188,7 +188,7 @@ export const MarketLinkagePage = () => {
                     </div>
                     <h4 className="pipeline-item-name">{p.name}</h4>
                     <span className="pipeline-link-preview">
-                      Active Link: <code>{p.marketLink || "https://kalasetu.artisan.in"}</code>
+                      Active Link: <code>{p.marketLink || "https://srishticonnect.artisan.in"}</code>
                     </span>
                   </div>
 

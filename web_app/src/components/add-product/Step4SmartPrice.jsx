@@ -36,9 +36,9 @@ export const Step4SmartPrice = ({ formData, updateFormData, onNext, onBack }) =>
   return (
     <div className="step-card">
       <div className="step-card__header">
-        <div className="step-badge">Step 4 of 5</div>
+        <div className="step-badge">Step 3 of 5</div>
         <div className="title-with-ai-badge">
-          <h2 className="step-card__title">{t.step4Title}</h2>
+          <h2 className="step-card__title">{t.step3Title}</h2>
           <span className="ai-chip">
             <SparklesIcon size={14} /> Fair Wage Formula
           </span>
@@ -161,10 +161,9 @@ export const Step4SmartPrice = ({ formData, updateFormData, onNext, onBack }) =>
           <ChevronLeftIcon size={18} /> {t.back}
         </button>
         <button type="button" className="btn-primary btn-next" onClick={onNext}>
-          {t.next}: Preview & Save <ArrowRightIcon size={18} />
+          {t.next}: AI Catalog <ArrowRightIcon size={18} />
         </button>
       </div>
     </div>
   );
 };
-

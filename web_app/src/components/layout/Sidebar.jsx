@@ -5,43 +5,39 @@ import {
   GridIcon,
   TrendingUpIcon,
   HelpCircleIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  LogOutIcon
 } from "../common/Icons";
 
 export const Sidebar = () => {
-  const { currentScreen, navigateTo, t, products } = useApp();
+  const { currentScreen, navigateTo, t, products, logout } = useApp();
 
   const navItems = [
     {
       id: "dashboard",
       label: t.dashboard,
-      labelHindi: "डैशबोर्ड",
       icon: <HomeIcon size={22} />
-    },
-    {
-      id: "add_product",
-      label: t.addProduct,
-      labelHindi: "नया उत्पाद",
-      icon: <PlusCircleIcon size={22} />,
-      highlight: true
     },
     {
       id: "catalog",
       label: t.myCatalog,
-      labelHindi: "मेरा कैटलॉग",
       icon: <GridIcon size={22} />,
       count: products.length
     },
     {
+      id: "add_product",
+      label: t.addProduct,
+      icon: <PlusCircleIcon size={22} />,
+      highlight: true
+    },
+    {
       id: "market_linkage",
       label: t.marketLinkage,
-      labelHindi: "बाज़ार लिंकेज",
       icon: <TrendingUpIcon size={22} />
     },
     {
       id: "help",
       label: t.help,
-      labelHindi: "सहायता",
       icon: <HelpCircleIcon size={22} />
     }
   ];
@@ -53,7 +49,9 @@ export const Sidebar = () => {
       <div className="sidebar-section-title">MAIN MENU</div>
       <nav className="sidebar-nav">
         {navItems.map((item) => {
-          const isActive = currentScreen === item.id || (item.id === "catalog" && currentScreen === "product_details");
+          const isActive =
+            currentScreen === item.id ||
+            (item.id === "catalog" && currentScreen === "product_details");
           return (
             <button
               key={item.id}
@@ -79,10 +77,10 @@ export const Sidebar = () => {
       <div className="sidebar-artisan-card">
         <div className="sidebar-artisan-card__header">
           <ShieldCheckIcon size={20} className="shield-icon" />
-          <span className="sidebar-artisan-card__title">GI & ONDC Ready</span>
+          <span className="sidebar-artisan-card__title">ONDC & Market Ready</span>
         </div>
         <p className="sidebar-artisan-card__desc">
-          <strong>{readyCount} of {products.length}</strong> crafts ready for digital marketplace buyer orders.
+          <strong>{readyCount} of {products.length}</strong> creations verified for digital buyer orders.
         </p>
         <button
           type="button"
@@ -92,7 +90,18 @@ export const Sidebar = () => {
           View Channels &rarr;
         </button>
       </div>
+
+      {/* Logout Action */}
+      <div className="sidebar-logout-wrapper">
+        <button
+          type="button"
+          className="sidebar-nav__item sidebar-nav__item--logout"
+          onClick={logout}
+        >
+          <span className="sidebar-nav__icon"><LogOutIcon size={20} /></span>
+          <span className="sidebar-nav__label">{t.logout}</span>
+        </button>
+      </div>
     </aside>
   );
 };
-

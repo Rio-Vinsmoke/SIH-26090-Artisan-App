@@ -1,187 +1,174 @@
 import { useApp } from "../context/AppContext";
-import { ActionCard } from "../components/common/ActionCard";
 import { ProductCard } from "../components/common/ProductCard";
 import {
   PlusCircleIcon,
-  GridIcon,
-  TrendingUpIcon,
-  TagIcon,
-  HelpCircleIcon,
   SparklesIcon,
-  IndianRupeeIcon
+  TrendingUpIcon,
+  HelpCircleIcon,
+  TagIcon
 } from "../components/common/Icons";
 
 export const DashboardPage = () => {
-  const { t, products, navigateTo, showToast } = useApp();
-
-  const totalCrafts = products.length;
-  const readyCrafts = products.filter((p) => p.status === "Ready").length;
-  const sharedCrafts = products.filter((p) => p.status === "Shared").length;
-  const totalValue = products.reduce((acc, curr) => acc + (Number(curr.price) || 0), 0);
-
-  const recentProducts = products.slice(0, 3);
+  const { t, products, navigateTo, showToast, currentUser } = useApp();
 
   const handleQuickShare = (product) => {
-    navigator.clipboard?.writeText?.(product.marketLink || "https://kalasetu.artisan.in");
-    showToast(`🔗 Link for "${product.name}" copied to clipboard! Ready to share.`);
+    navigator.clipboard?.writeText?.(
+      product.marketLink || `https://srishticonnect.artisan.in/item/${product.id}`
+    );
+    showToast(`🔗 Share link for "${product.name}" copied to clipboard!`);
   };
+
+  const displayName = currentUser?.name || "Artisan";
+  const readyCount = products.filter((p) => p.status === "Ready" || p.status === "Shared").length;
 
   return (
     <div className="dashboard-page">
-      {/* Top Welcome Banner */}
-      <section className="artisan-hero-banner">
-        <div className="artisan-hero-content">
-          <div className="hero-greeting-pill">
+      {/* 1. Welcoming Hero Banner */}
+      <section className="dashboard-hero">
+        <div className="dashboard-hero__greeting">
+          <div className="hero-cluster-pill">
             <span className="live-dot"></span>
-            <span>Artisan Hub • शिल्पकार केंद्र</span>
+            <span>{currentUser?.craftCluster || "Master Craft Cluster"}</span>
           </div>
-          <h1 className="hero-greeting-title">
-            {t.artisanWelcome} <span className="artisan-subname">Shanti Devi</span>
+          <h1 className="dashboard-hero__title">
+            {t.artisanWelcome} <span className="artisan-name-highlight">{displayName}</span>
           </h1>
-          <p className="hero-greeting-sub">
-            Showcase your handmade heritage to verified global buyers and markets with AI assistance.
+          <p className="dashboard-hero__subtitle">
+            {t.welcomeSubtitle}
           </p>
         </div>
 
-        <div className="hero-action-box">
-          <button
-            type="button"
-            className="btn-hero-add"
-            onClick={() => navigateTo("add_product")}
-          >
-            <PlusCircleIcon size={24} />
-            <div className="btn-hero-text">
-              <span className="btn-hero-main">{t.addProduct}</span>
-              <span className="btn-hero-sub">Photo + Voice + AI Pricing</span>
+        {/* Quick status indicator */}
+        <div className="hero-status-tag">
+          <span className="hero-status-num">{products.length}</span>
+          <span className="hero-status-label">Active Creations</span>
+        </div>
+      </section>
+
+      {/* 2. Big Prominent "Add New Creation" Hero Action Card */}
+      <section className="big-add-action-section">
+        <button
+          type="button"
+          className="big-add-card"
+          onClick={() => navigateTo("add_product")}
+          aria-label="Add a new craft creation"
+        >
+          <div className="big-add-card__icon-wrap">
+            <PlusCircleIcon size={44} />
+          </div>
+          <div className="big-add-card__content">
+            <div className="big-add-card__title-row">
+              <h2 className="big-add-card__title">Add New Creation</h2>
+              <span className="big-add-card__pill">AI Assisted 5-Step Flow</span>
             </div>
-          </button>
-        </div>
+            <p className="big-add-card__desc">
+              Photo Upload &rarr; Voice Details &rarr; Smart Price &rarr; AI Catalog &rarr; Instant Showcase
+            </p>
+          </div>
+          <div className="big-add-card__cta">
+            <span className="cta-button-text">Start &rarr;</span>
+          </div>
+        </button>
       </section>
 
-      {/* Summary Metrics Row */}
-      <section className="metrics-summary-grid" aria-label="Catalog Summary">
-        <div className="metric-card" onClick={() => navigateTo("catalog")} role="button" tabIndex={0}>
-          <div className="metric-icon-wrap metric-icon-wrap--indigo">
-            <GridIcon size={24} />
-          </div>
-          <div className="metric-content">
-            <span className="metric-value">{totalCrafts}</span>
-            <span className="metric-label">{t.totalProducts}</span>
-          </div>
-        </div>
-
-        <div className="metric-card" onClick={() => navigateTo("catalog")} role="button" tabIndex={0}>
-          <div className="metric-icon-wrap metric-icon-wrap--amber">
-            <SparklesIcon size={24} />
-          </div>
-          <div className="metric-content">
-            <span className="metric-value">{readyCrafts}</span>
-            <span className="metric-label">{t.readyToShare}</span>
-          </div>
-        </div>
-
-        <div className="metric-card" onClick={() => navigateTo("market_linkage")} role="button" tabIndex={0}>
-          <div className="metric-icon-wrap metric-icon-wrap--green">
-            <TrendingUpIcon size={24} />
-          </div>
-          <div className="metric-content">
-            <span className="metric-value">{sharedCrafts}</span>
-            <span className="metric-label">{t.sharedWithBuyers}</span>
-          </div>
-        </div>
-
-        <div className="metric-card" onClick={() => navigateTo("catalog")} role="button" tabIndex={0}>
-          <div className="metric-icon-wrap metric-icon-wrap--terracotta">
-            <IndianRupeeIcon size={24} />
-          </div>
-          <div className="metric-content">
-            <span className="metric-value">₹{totalValue.toLocaleString("en-IN")}</span>
-            <span className="metric-label">{t.estimatedValue}</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Action Cards Grid */}
-      <section className="dashboard-section">
-        <div className="section-header">
-          <h2 className="section-heading">{t.quickActions}</h2>
-          <span className="section-subtext">Tap any card to begin</span>
-        </div>
-
-        <div className="action-cards-grid">
-          <ActionCard
-            icon={<PlusCircleIcon size={32} />}
-            title="Add New Product"
-            subtitle="Take photo, speak details & get AI catalog in seconds"
-            badge="AI Powered"
-            variant="primary"
-            audioTip="Photo → Voice → AI Price"
-            onClick={() => navigateTo("add_product")}
-          />
-
-          <ActionCard
-            icon={<GridIcon size={32} />}
-            title="My Catalog"
-            subtitle="Browse, manage, and view your digitized crafts"
-            badge={`${totalCrafts} Crafts`}
-            variant="warm"
-            onClick={() => navigateTo("catalog")}
-          />
-
-          <ActionCard
-            icon={<TagIcon size={32} />}
-            title="Smart Price Calculator"
-            subtitle="Calculate fair artisan wage based on hours & raw materials"
-            badge="Fair Trade"
-            variant="secondary"
-            onClick={() => navigateTo("add_product", null, 4)}
-          />
-
-          <ActionCard
-            icon={<TrendingUpIcon size={32} />}
-            title="Market Linkage"
-            subtitle="Connect to ONDC, state emporiums, and buyer networks"
-            badge={`${readyCrafts} Ready`}
-            variant="default"
-            onClick={() => navigateTo("market_linkage")}
-          />
-
-          <ActionCard
-            icon={<HelpCircleIcon size={32} />}
-            title="Help & Audio Guide"
-            subtitle="Visual cards and voice assistance for artisans"
-            badge="Toll-Free"
-            variant="default"
-            onClick={() => navigateTo("help")}
-          />
-        </div>
-      </section>
-
-      {/* Recent Crafts Section */}
-      <section className="dashboard-section">
-        <div className="section-header section-header--with-action">
+      {/* 3. My Products / My Creations Gallery */}
+      <section className="dashboard-creations-section">
+        <div className="section-header-row">
           <div>
-            <h2 className="section-heading">{t.recentProducts}</h2>
-            <span className="section-subtext">Your recently cataloged crafts</span>
+            <h2 className="section-main-heading">{t.myCreations}</h2>
+            <span className="section-sub-heading">
+              Your digitized handcrafted products ({products.length} total)
+            </span>
           </div>
-          <button
-            type="button"
-            className="btn-link"
-            onClick={() => navigateTo("catalog")}
-          >
-            {t.viewAll} ({totalCrafts}) &rarr;
-          </button>
+
+          <div className="section-header-actions">
+            <button
+              type="button"
+              className="btn-link"
+              onClick={() => navigateTo("catalog")}
+            >
+              {t.viewAll} ({products.length}) &rarr;
+            </button>
+          </div>
         </div>
 
-        <div className="products-grid">
-          {recentProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onSelect={(p) => navigateTo("product_details", p)}
-              onQuickShare={handleQuickShare}
-            />
-          ))}
+        {products.length > 0 ? (
+          <div className="products-grid">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onSelect={(p) => navigateTo("product_details", p)}
+                onQuickShare={handleQuickShare}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="empty-creations-card">
+            <div className="empty-icon-circle">
+              <SparklesIcon size={36} />
+            </div>
+            <h3>No creations yet</h3>
+            <p>Start by digitizing your first craft using our simple 5-step AI wizard.</p>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => navigateTo("add_product")}
+            >
+              <PlusCircleIcon size={18} /> Add Your First Creation
+            </button>
+          </div>
+        )}
+      </section>
+
+      {/* 4. Streamlined Secondary Quick Hub */}
+      <section className="dashboard-quick-links-section">
+        <h3 className="quick-links-heading">Craft Growth & Market Tools</h3>
+        <div className="quick-links-grid">
+          <div
+            className="quick-link-card"
+            onClick={() => navigateTo("market_linkage")}
+            role="button"
+            tabIndex={0}
+          >
+            <div className="quick-link-icon quick-link-icon--market">
+              <TrendingUpIcon size={24} />
+            </div>
+            <div className="quick-link-text">
+              <h4>{t.marketLinkage}</h4>
+              <p>{readyCount} products ready for ONDC & buyer networks</p>
+            </div>
+          </div>
+
+          <div
+            className="quick-link-card"
+            onClick={() => navigateTo("add_product", null, 3)}
+            role="button"
+            tabIndex={0}
+          >
+            <div className="quick-link-icon quick-link-icon--price">
+              <TagIcon size={24} />
+            </div>
+            <div className="quick-link-text">
+              <h4>Smart Fair Price</h4>
+              <p>Calculate fair wages based on craft hours & materials</p>
+            </div>
+          </div>
+
+          <div
+            className="quick-link-card"
+            onClick={() => navigateTo("help")}
+            role="button"
+            tabIndex={0}
+          >
+            <div className="quick-link-icon quick-link-icon--help">
+              <HelpCircleIcon size={24} />
+            </div>
+            <div className="quick-link-text">
+              <h4>{t.help}</h4>
+              <p>Voice assistance & step-by-step visual guides</p>
+            </div>
+          </div>
         </div>
       </section>
     </div>

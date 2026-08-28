@@ -102,14 +102,14 @@ export const Step5Preview = ({ formData, onSave, onEditStep, onBack }) => {
                 className="btn-secondary btn-sm"
                 onClick={() => onEditStep(3)}
               >
-                <EditIcon size={14} /> Edit Information
+                <IndianRupeeIcon size={14} /> Adjust Price (Step 3)
               </button>
               <button
                 type="button"
                 className="btn-secondary btn-sm"
                 onClick={() => onEditStep(4)}
               >
-                <IndianRupeeIcon size={14} /> Adjust Price
+                <EditIcon size={14} /> Edit AI Details (Step 4)
               </button>
             </div>
           </div>
@@ -131,4 +131,3 @@ export const Step5Preview = ({ formData, onSave, onEditStep, onBack }) => {
     </div>
   );
 };
-

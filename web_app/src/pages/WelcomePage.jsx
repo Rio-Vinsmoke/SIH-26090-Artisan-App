@@ -49,8 +49,8 @@ export const WelcomePage = () => {
         </div>
 
         {/* Brand Titles */}
-        <h1 className="welcome-title">KalaSetu <span className="welcome-title-hi">कलासेतु</span></h1>
-        <p className="welcome-tagline">“From Craft to Market • शिल्प से बाज़ार तक”</p>
+        <h1 className="welcome-title">SrishtiConnect <span className="welcome-title-hi">सृष्टिकानेक्ट</span></h1>
+        <p className="welcome-tagline">“From Creation to Connection • सृजन से जुड़ाव तक”</p>
 
         {/* Welcome Message */}
         <div className="welcome-message-card">
@@ -82,7 +82,7 @@ export const WelcomePage = () => {
 
         {/* 4-Step Feature Illustration */}
         <div className="welcome-how-it-works">
-          <h3 className="how-it-works-title">How KalaSetu Empowers You:</h3>
+          <h3 className="how-it-works-title">How SrishtiConnect Empowers You:</h3>
           <div className="feature-steps-row">
             {features.map((f, i) => (
               <div key={i} className="feature-step-pill">
