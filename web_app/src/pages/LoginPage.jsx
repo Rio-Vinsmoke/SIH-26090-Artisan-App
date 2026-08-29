@@ -13,217 +13,358 @@ import {
 } from "../components/common/Icons";
 
 export const LoginPage = () => {
-  const { login, demoLogin, showToast, t, language, setLanguage } = useApp();
+  const {
+    login,
+    register,
+    loginWithGoogle,
+    showToast,
+    t,
+    language,
+    setLanguage
+  } = useApp();
 
-  const [identifier, setIdentifier] = useState("artisan@srishti.in");
-  const [password, setPassword] = useState("artisan123");
+  // Login fields
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
+
+  // UI state
   const [showPassword, setShowPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
 
-  // Registration form fields
+  // Registration fields
   const [regName, setRegName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
   const [regPhone, setRegPhone] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [regCraftCluster, setRegCraftCluster] = useState("");
   const [regCraft, setRegCraft] = useState("");
 
+  // ================= LOGIN =================
   const handleLogin = async (e) => {
-    e?.preventDefault?.();
+    e.preventDefault();
+
     if (!identifier.trim()) {
-      showToast("⚠️ Please enter your email or mobile number.");
+      showToast("⚠️ Please enter your email.");
       return;
     }
+
     if (!password.trim()) {
       showToast("⚠️ Please enter your password.");
       return;
     }
 
     setIsLoading(true);
+
     try {
-      await login(identifier, password, rememberMe);
-      showToast(`✨ Welcome back to SrishtiConnect!`);
+      await login(identifier.trim(), password, rememberMe);
+      showToast("✨ Welcome back to SrishtiConnect!");
     } catch (err) {
-      showToast(`⚠️ ${err.message || "Login failed. Please try again."}`);
+      showToast(
+        `⚠️ ${err.message || "Login failed. Please try again."}`
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDemoLogin = async () => {
-    setIsLoading(true);
+  // ================= GOOGLE LOGIN =================
+  const handleGoogleLogin = () => {
     try {
-      await demoLogin();
-      showToast("✨ Logged in as Shanti Devi (Master Artisan Demo)!");
-    } catch {
-      showToast("⚠️ Demo login error.");
-    } finally {
+      setIsLoading(true);
+      loginWithGoogle();
+    } catch (err) {
       setIsLoading(false);
+
+      showToast(
+        `⚠️ ${err.message || "Unable to start Google sign in."}`
+      );
     }
   };
 
-  const handleRegisterSubmit = (e) => {
+  // ================= REGISTER =================
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
+
     if (!regName.trim()) {
       showToast("⚠️ Please enter your full name.");
       return;
     }
+
+    if (!regEmail.trim()) {
+      showToast("⚠️ Please enter your email.");
+      return;
+    }
+
+    if (!regPhone.trim()) {
+      showToast("⚠️ Please enter your mobile number.");
+      return;
+    }
+
+    if (!regPassword.trim()) {
+      showToast("⚠️ Please create a password.");
+      return;
+    }
+
+    if (regPassword.length < 6) {
+      showToast("⚠️ Password must contain at least 6 characters.");
+      return;
+    }
+
     setIsLoading(true);
-    setTimeout(() => {
+
+    try {
+      await register({
+        name: regName.trim(),
+        email: regEmail.trim(),
+        phone: regPhone.trim(),
+        password: regPassword,
+        craftCluster: regCraftCluster.trim(),
+        craftSpecialization: regCraft.trim()
+      });
+
+      // Automatically log in after successful registration
+      await login(
+        regEmail.trim(),
+        regPassword,
+        true
+      );
+
+      showToast(
+        `🎉 Welcome to SrishtiConnect, ${regName.trim()}!`
+      );
+
+      setRegName("");
+      setRegEmail("");
+      setRegPhone("");
+      setRegPassword("");
+      setRegCraftCluster("");
+      setRegCraft("");
+
+    } catch (err) {
+      showToast(
+        `⚠️ ${err.message || "Registration failed. Please try again."}`
+      );
+    } finally {
       setIsLoading(false);
-      setIsRegisterMode(false);
-      showToast(`🎉 Account created for ${regName}! Signing you in...`);
-      demoLogin();
-    }, 600);
+    }
   };
 
   return (
     <div className="login-page-container">
-      {/* Top language pill bar */}
+
+      {/* Language Selection */}
       <div className="login-top-bar">
         <div className="login-lang-pills">
+
           <button
             type="button"
-            className={`lang-pill ${language === "en" ? "lang-pill--active" : ""}`}
+            className={`lang-pill ${
+              language === "en" ? "lang-pill--active" : ""
+            }`}
             onClick={() => setLanguage("en")}
           >
             English
           </button>
+
           <button
             type="button"
-            className={`lang-pill ${language === "hi" ? "lang-pill--active" : ""}`}
+            className={`lang-pill ${
+              language === "hi" ? "lang-pill--active" : ""
+            }`}
             onClick={() => setLanguage("hi")}
           >
             हिन्दी
           </button>
+
           <button
             type="button"
-            className={`lang-pill ${language === "te" ? "lang-pill--active" : ""}`}
+            className={`lang-pill ${
+              language === "te" ? "lang-pill--active" : ""
+            }`}
             onClick={() => setLanguage("te")}
           >
             తెలుగు
           </button>
+
         </div>
       </div>
 
       <div className="login-card-wrapper">
-        {/* Header Branding */}
+
+        {/* Branding */}
         <div className="login-branding">
+
           <div className="brand-logo-mark brand-logo-mark--large">
             <span className="logo-symbol">सृ</span>
+
             <div className="logo-sparkle">
               <SparklesIcon size={14} />
             </div>
           </div>
+
           <h1 className="login-app-name">
-            SrishtiConnect <span className="login-app-hi">सृष्टिकानेक्ट</span>
-          </h1>
-          <p className="login-tagline">“{t.tagline}”</p>
-        </div>
-
-        {/* Demo Quick Banner */}
-        <div className="demo-credentials-banner">
-          <div className="demo-banner-content">
-            <span className="demo-badge">Demo Mode</span>
-            <span className="demo-text">
-              Test with <strong>artisan@srishti.in</strong> / <strong>artisan123</strong> or click below:
+            SrishtiConnect{" "}
+            <span className="login-app-hi">
+              सृष्टिकानेक्ट
             </span>
-          </div>
-          <button
-            type="button"
-            className="btn-demo-quick"
-            onClick={handleDemoLogin}
-            disabled={isLoading}
-          >
-            <SparklesIcon size={16} /> {t.demoLoginBtn}
-          </button>
+          </h1>
+
+          <p className="login-tagline">
+            “{t.tagline}”
+          </p>
+
         </div>
 
-        {/* Mode Switch Tabs */}
+        {/* Login / Register Tabs */}
         <div className="login-tabs">
+
           <button
             type="button"
-            className={`login-tab ${!isRegisterMode ? "login-tab--active" : ""}`}
+            className={`login-tab ${
+              !isRegisterMode ? "login-tab--active" : ""
+            }`}
             onClick={() => setIsRegisterMode(false)}
           >
             Sign In / लॉग इन
           </button>
+
           <button
             type="button"
-            className={`login-tab ${isRegisterMode ? "login-tab--active" : ""}`}
+            className={`login-tab ${
+              isRegisterMode ? "login-tab--active" : ""
+            }`}
             onClick={() => setIsRegisterMode(true)}
           >
             New Artisan Register
           </button>
+
         </div>
 
         {!isRegisterMode ? (
-          /* Sign In Form */
-          <form className="login-form" onSubmit={handleLogin}>
+
+          /* ================= LOGIN FORM ================= */
+          <form
+            className="login-form"
+            onSubmit={handleLogin}
+          >
+
+            {/* Email */}
             <div className="login-input-group">
-              <label className="login-label" htmlFor="login-identifier">
-                <MailIcon size={16} /> {t.emailOrMobile}
+
+              <label
+                className="login-label"
+                htmlFor="login-identifier"
+              >
+                <MailIcon size={16} />
+                {t.emailOrMobile}
               </label>
+
               <div className="input-field-wrap">
+
                 <input
                   id="login-identifier"
-                  type="text"
+                  type="email"
                   className="login-input"
-                  placeholder="artisan@srishti.in or 9876543210"
+                  placeholder="Enter your email"
                   value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  autoComplete="username"
+                  onChange={(e) =>
+                    setIdentifier(e.target.value)
+                  }
+                  autoComplete="email"
                   required
                 />
+
               </div>
+
             </div>
 
+            {/* Password */}
             <div className="login-input-group">
+
               <div className="login-label-row">
-                <label className="login-label" htmlFor="login-password">
-                  <LockIcon size={16} /> {t.password}
+
+                <label
+                  className="login-label"
+                  htmlFor="login-password"
+                >
+                  <LockIcon size={16} />
+                  {t.password}
                 </label>
+
                 <button
                   type="button"
                   className="btn-forgot-link"
-                  onClick={() => setShowForgotModal(true)}
+                  onClick={() =>
+                    setShowForgotModal(true)
+                  }
                 >
                   {t.forgotPassword}
                 </button>
+
               </div>
+
               <div className="input-field-wrap">
+
                 <input
                   id="login-password"
                   type={showPassword ? "text" : "password"}
                   className="login-input"
                   placeholder="Enter your password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) =>
+                    setPassword(e.target.value)
+                  }
                   autoComplete="current-password"
                   required
                 />
+
                 <button
                   type="button"
                   className="btn-toggle-eye"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  onClick={() =>
+                    setShowPassword(!showPassword)
+                  }
+                  aria-label={
+                    showPassword
+                      ? "Hide password"
+                      : "Show password"
+                  }
                 >
-                  {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+                  {showPassword ? (
+                    <EyeOffIcon size={18} />
+                  ) : (
+                    <EyeIcon size={18} />
+                  )}
                 </button>
+
               </div>
+
             </div>
 
+            {/* Remember Me */}
             <div className="login-options-row">
+
               <label className="remember-checkbox-label">
+
                 <input
                   type="checkbox"
                   checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
+                  onChange={(e) =>
+                    setRememberMe(e.target.checked)
+                  }
                 />
+
                 <span>{t.rememberMe}</span>
+
               </label>
+
             </div>
 
+            {/* Normal Login */}
             <button
               type="submit"
               className="btn-primary btn-login-submit"
@@ -238,119 +379,309 @@ export const LoginPage = () => {
                 </>
               )}
             </button>
+
+            {/* Google Divider */}
+            <div className="google-login-divider">
+              <span>OR</span>
+            </div>
+
+            {/* Google Login */}
+            <button
+              type="button"
+              className="btn-google-login"
+              onClick={handleGoogleLogin}
+              disabled={isLoading}
+            >
+              <span className="google-icon">G</span>
+              <span>Continue with Google</span>
+            </button>
+
           </form>
+
         ) : (
-          /* Register Form */
-          <form className="login-form" onSubmit={handleRegisterSubmit}>
+
+          /* ================= REGISTER FORM ================= */
+          <form
+            className="login-form"
+            onSubmit={handleRegisterSubmit}
+          >
+
+            {/* Name */}
             <div className="login-input-group">
-              <label className="login-label" htmlFor="reg-name">
-                <UserIcon size={16} /> Full Name / पूरा नाम
+
+              <label
+                className="login-label"
+                htmlFor="reg-name"
+              >
+                <UserIcon size={16} />
+                Full Name / पूरा नाम
               </label>
+
               <input
                 id="reg-name"
                 type="text"
                 className="login-input"
-                placeholder="e.g. Shanti Devi"
+                placeholder="Enter your full name"
                 value={regName}
-                onChange={(e) => setRegName(e.target.value)}
+                onChange={(e) =>
+                  setRegName(e.target.value)
+                }
                 required
               />
+
             </div>
 
+            {/* Email */}
             <div className="login-input-group">
-              <label className="login-label" htmlFor="reg-phone">
-                <PhoneCallIcon size={16} /> Mobile Number / मोबाइल नंबर
+
+              <label
+                className="login-label"
+                htmlFor="reg-email"
+              >
+                <MailIcon size={16} />
+                Email Address
               </label>
+
+              <input
+                id="reg-email"
+                type="email"
+                className="login-input"
+                placeholder="Enter your email"
+                value={regEmail}
+                onChange={(e) =>
+                  setRegEmail(e.target.value)
+                }
+                autoComplete="email"
+                required
+              />
+
+            </div>
+
+            {/* Phone */}
+            <div className="login-input-group">
+
+              <label
+                className="login-label"
+                htmlFor="reg-phone"
+              >
+                <PhoneCallIcon size={16} />
+                Mobile Number / मोबाइल नंबर
+              </label>
+
               <input
                 id="reg-phone"
                 type="tel"
                 className="login-input"
-                placeholder="e.g. 9876543210"
+                placeholder="Enter your mobile number"
                 value={regPhone}
-                onChange={(e) => setRegPhone(e.target.value)}
+                onChange={(e) =>
+                  setRegPhone(e.target.value)
+                }
                 required
               />
+
             </div>
 
+            {/* Password */}
             <div className="login-input-group">
-              <label className="login-label" htmlFor="reg-craft">
-                <SparklesIcon size={16} /> Craft Specialization / शिल्प
+
+              <label
+                className="login-label"
+                htmlFor="reg-password"
+              >
+                <LockIcon size={16} />
+                Create Password
               </label>
+
+              <div className="input-field-wrap">
+
+                <input
+                  id="reg-password"
+                  type={
+                    showRegisterPassword
+                      ? "text"
+                      : "password"
+                  }
+                  className="login-input"
+                  placeholder="Minimum 6 characters"
+                  value={regPassword}
+                  onChange={(e) =>
+                    setRegPassword(e.target.value)
+                  }
+                  autoComplete="new-password"
+                  required
+                />
+
+                <button
+                  type="button"
+                  className="btn-toggle-eye"
+                  onClick={() =>
+                    setShowRegisterPassword(
+                      !showRegisterPassword
+                    )
+                  }
+                  aria-label={
+                    showRegisterPassword
+                      ? "Hide password"
+                      : "Show password"
+                  }
+                >
+                  {showRegisterPassword ? (
+                    <EyeOffIcon size={18} />
+                  ) : (
+                    <EyeIcon size={18} />
+                  )}
+                </button>
+
+              </div>
+
+            </div>
+
+            {/* Craft Cluster */}
+            <div className="login-input-group">
+
+              <label
+                className="login-label"
+                htmlFor="reg-cluster"
+              >
+                <SparklesIcon size={16} />
+                Craft Cluster
+              </label>
+
+              <input
+                id="reg-cluster"
+                type="text"
+                className="login-input"
+                placeholder="e.g. Kondapalli, Pochampally"
+                value={regCraftCluster}
+                onChange={(e) =>
+                  setRegCraftCluster(e.target.value)
+                }
+              />
+
+            </div>
+
+            {/* Craft Specialization */}
+            <div className="login-input-group">
+
+              <label
+                className="login-label"
+                htmlFor="reg-craft"
+              >
+                <SparklesIcon size={16} />
+                Craft Specialization / शिल्प
+              </label>
+
               <input
                 id="reg-craft"
                 type="text"
                 className="login-input"
-                placeholder="e.g. Handloom Weaving, Terracotta, Wood Craft"
+                placeholder="e.g. Handloom, Terracotta, Wood Craft"
                 value={regCraft}
-                onChange={(e) => setRegCraft(e.target.value)}
+                onChange={(e) =>
+                  setRegCraft(e.target.value)
+                }
               />
+
             </div>
 
+            {/* Register */}
             <button
               type="submit"
               className="btn-primary btn-login-submit"
               disabled={isLoading}
             >
-              <span>Register & Start Digitizing</span>
-              <ArrowRightIcon size={18} />
+              {isLoading ? (
+                <span>Creating Account...</span>
+              ) : (
+                <>
+                  <span>Register & Start Digitizing</span>
+                  <ArrowRightIcon size={18} />
+                </>
+              )}
             </button>
+
           </form>
         )}
 
-        {/* Footer Guarantee */}
+        {/* Footer */}
         <div className="login-footer-trust">
-          <ShieldCheckIcon size={18} className="trust-icon" />
+
+          <ShieldCheckIcon
+            size={18}
+            className="trust-icon"
+          />
+
           <span>
             National AI Platform for Artisans • Zero Middlemen • Fair Trade
           </span>
+
         </div>
+
       </div>
 
-      {/* Forgot Password Modal */}
+      {/* ================= FORGOT PASSWORD MODAL ================= */}
       {showForgotModal && (
-        <div className="modal-overlay" onClick={() => setShowForgotModal(false)}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+
+        <div
+          className="modal-overlay"
+          onClick={() => setShowForgotModal(false)}
+        >
+
+          <div
+            className="modal-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+
             <div className="modal-header">
-              <h3 className="modal-title">Reset Password / पासवर्ड रीसेट</h3>
+
+              <h3 className="modal-title">
+                Reset Password / पासवर्ड रीसेट
+              </h3>
+
               <button
                 type="button"
                 className="btn-close-modal"
-                onClick={() => setShowForgotModal(false)}
+                onClick={() =>
+                  setShowForgotModal(false)
+                }
               >
                 &times;
               </button>
+
             </div>
+
             <div className="modal-body">
+
               <p className="modal-intro">
-                In this demo version, you can simply use the pre-configured credentials:
+                Password reset functionality will be available soon.
               </p>
-              <div className="demo-credentials-box">
-                <p>
-                  <strong>Email:</strong> <code>artisan@srishti.in</code>
-                </p>
-                <p>
-                  <strong>Password:</strong> <code>artisan123</code>
-                </p>
-              </div>
+
               <p className="modal-subtext">
-                Or click <strong>"Quick Artisan Demo Login"</strong> on the main screen to sign in instantly with full mock catalog data.
+                Please contact support or try again later to reset your password.
               </p>
+
             </div>
+
             <div className="modal-footer">
+
               <button
                 type="button"
                 className="btn-primary"
-                onClick={() => {
-                  setShowForgotModal(false);
-                  handleDemoLogin();
-                }}
+                onClick={() =>
+                  setShowForgotModal(false)
+                }
               >
-                Sign In with Demo Account
+                Close
               </button>
+
             </div>
+
           </div>
+
         </div>
       )}
+
     </div>
   );
 };

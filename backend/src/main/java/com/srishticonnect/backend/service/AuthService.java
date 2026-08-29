@@ -19,8 +19,8 @@ public class AuthService {
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService) {
-
+            JwtService jwtService
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -32,8 +32,8 @@ public class AuthService {
             return "Email already registered";
         }
 
-        if (request.getPhone() != null &&
-                userRepository.existsByPhone(request.getPhone())) {
+        if (request.getPhone() != null
+                && userRepository.existsByPhone(request.getPhone())) {
             return "Phone number already registered";
         }
 
@@ -43,11 +43,14 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
 
-        // Encrypt password before storing in MySQL
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPassword(
+                passwordEncoder.encode(request.getPassword())
+        );
 
         user.setCraftCluster(request.getCraftCluster());
-        user.setCraftSpecialization(request.getCraftSpecialization());
+        user.setCraftSpecialization(
+                request.getCraftSpecialization()
+        );
 
         userRepository.save(user);
 
@@ -56,7 +59,8 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository
+                .findByEmail(request.getEmail())
                 .orElse(null);
 
         if (user == null) {
@@ -72,8 +76,8 @@ public class AuthService {
 
         if (!passwordEncoder.matches(
                 request.getPassword(),
-                user.getPassword())) {
-
+                user.getPassword()
+        )) {
             return new AuthResponse(
                     "Invalid password",
                     null,
@@ -84,7 +88,6 @@ public class AuthService {
             );
         }
 
-        // Generate JWT after successful login
         String token = jwtService.generateToken(user);
 
         return new AuthResponse(

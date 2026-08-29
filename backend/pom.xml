@@ -43,6 +43,12 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+        <!-- Google OAuth2 Login -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+
         <!-- Validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -122,6 +128,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+
                 <executions>
 
                     <execution>
@@ -130,6 +137,7 @@
                         <goals>
                             <goal>compile</goal>
                         </goals>
+
                         <configuration>
                             <annotationProcessorPaths>
                                 <path>
@@ -146,6 +154,7 @@
                         <goals>
                             <goal>testCompile</goal>
                         </goals>
+
                         <configuration>
                             <annotationProcessorPaths>
                                 <path>
