@@ -31,6 +31,9 @@ public class Product {
 
     private Double premiumPrice;
 
+    // Changed to LONGTEXT because uploaded images are stored as Base64 strings
+    // and can be much larger than VARCHAR(255)
+    @Column(columnDefinition = "LONGTEXT")
     private String imageUrl;
 
     private String status;
@@ -60,6 +63,10 @@ public class Product {
     public void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    // =========================
+    // GETTERS AND SETTERS
+    // =========================
 
     public Long getId() {
         return id;

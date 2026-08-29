@@ -8,7 +8,13 @@ import { Step3AICatalog } from "../components/add-product/Step3AICatalog";
 import { Step5Preview } from "../components/add-product/Step5Preview";
 
 export const AddProductPage = () => {
-  const { activeStep, setActiveStep, addProduct, navigateTo } = useApp();
+  const {
+    activeStep,
+    setActiveStep,
+    addProduct,
+    navigateTo,
+    showToast
+  } = useApp();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -31,6 +37,8 @@ export const AddProductPage = () => {
     status: "Ready"
   });
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const updateFormData = (fields) => {
     setFormData((prev) => ({ ...prev, ...fields }));
   };
@@ -51,13 +59,25 @@ export const AddProductPage = () => {
     }
   };
 
-  const handleSave = () => {
-    addProduct(formData);
+  const handleSave = async () => {
+    if (isSaving) return;
+
+    try {
+      setIsSaving(true);
+
+      await addProduct(formData);
+
+      showToast("Product saved successfully");
+    } catch (error) {
+      console.error("Error saving product:", error);
+      showToast(error.message || "Failed to save product");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
     <div className="add-product-page">
-      {/* Top Breadcrumb & Progress Header */}
       <div className="add-product-page__header">
         <div className="page-title-wrap">
           <h1 className="page-title">Add New Creation</h1>
@@ -66,10 +86,12 @@ export const AddProductPage = () => {
           </p>
         </div>
 
-        <StepProgress currentStep={activeStep} onStepClick={(step) => setActiveStep(step)} />
+        <StepProgress
+          currentStep={activeStep}
+          onStepClick={(step) => setActiveStep(step)}
+        />
       </div>
 
-      {/* Step Components in order: Photo -> Voice -> Smart Price -> AI Catalog -> Preview */}
       <div className="add-product-page__content">
         {activeStep === 1 && (
           <Step1Photo

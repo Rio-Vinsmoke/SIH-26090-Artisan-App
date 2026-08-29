@@ -1,102 +1,125 @@
-/**
- * Product Service (Mock / LocalStorage)
- * Modular interface designed for easy replacement with Spring Boot REST APIs (/api/products/*)
- */
+import { authService } from "./authService";
 
-import { initialProducts } from "../data/initialProducts";
+const API_BASE_URL = "http://localhost:8080/api";
 
-const PRODUCTS_STORAGE_KEY = "srishticonnect_products";
+const getAuthHeaders = () => {
+  const token = authService.getToken();
+
+  if (!token) {
+    throw new Error("You are not logged in. Please log in again.");
+  }
+
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`
+  };
+};
+
+const handleResponse = async (response) => {
+  if (response.status === 401 || response.status === 403) {
+    throw new Error("Your session has expired. Please log in again.");
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "Something went wrong. Please try again.");
+  }
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  return response.json();
+};
 
 export const productService = {
-  /**
-   * Fetch all products for the logged-in artisan
-   * @returns {Promise<Array>} Array of products
-   */
   async getProducts() {
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    const saved = localStorage.getItem(PRODUCTS_STORAGE_KEY);
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return initialProducts;
-      }
-    }
-    // Initialize default products if first time
-    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(initialProducts));
-    return initialProducts;
-  },
-
-  /**
-   * Get single product details by ID
-   * @param {string} id - Product ID
-   * @returns {Promise<object|null>} Product details
-   */
-  async getProductById(id) {
-    const products = await this.getProducts();
-    return products.find((p) => p.id === id) || null;
-  },
-
-  /**
-   * Add a new product to catalog
-   * @param {object} productData - New product attributes
-   * @returns {Promise<object>} Created product with ID & timestamp
-   */
-  async addProduct(productData) {
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    const products = await this.getProducts();
-    const newProduct = {
-      ...productData,
-      id: `prod-${Date.now()}`,
-      createdAt: new Date().toISOString().split("T")[0],
-      buyerChannel: "ONDC Crafts / State Emporium",
-      marketLink: `https://srishticonnect.artisan.in/item/craft-${Date.now()}`
-    };
-    const updated = [newProduct, ...products];
-    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(updated));
-    return newProduct;
-  },
-
-  /**
-   * Update an existing product
-   * @param {string} id - Product ID
-   * @param {object} updates - Attributes to update
-   * @returns {Promise<object>} Updated product
-   */
-  async updateProduct(id, updates) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    const products = await this.getProducts();
-    let updatedProduct = null;
-    const updatedList = products.map((p) => {
-      if (p.id === id) {
-        updatedProduct = { ...p, ...updates };
-        return updatedProduct;
-      }
-      return p;
+    const response = await fetch(`${API_BASE_URL}/products`, {
+      method: "GET",
+      headers: getAuthHeaders()
     });
-    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(updatedList));
-    return updatedProduct;
+
+    return handleResponse(response);
   },
 
-  /**
-   * Update product marketplace status (Draft / Ready / Shared)
-   * @param {string} id - Product ID
-   * @param {string} status - New status
-   */
+  async getProductById(id) {
+    const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+      method: "GET",
+      headers: getAuthHeaders()
+    });
+
+    return handleResponse(response);
+  },
+
+  async addProduct(productData) {
+    const response = await fetch(`${API_BASE_URL}/products`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        title: productData.name || "",
+        description: productData.description || "",
+        category: productData.craftType || "",
+        materials: productData.material || "",
+        materialCost: Number(productData.materialCost) || 0,
+        laborHours: Number(productData.timeTakenHours) || 0,
+        minimumPrice: Number(productData.minPrice) || 0,
+        recommendedPrice: Number(productData.price) || 0,
+        premiumPrice: Number(productData.maxPrice) || 0,
+        imageUrl: productData.image || "",
+        status: productData.status || "Ready"
+      })
+    });
+
+    return handleResponse(response);
+  },
+
+  async updateProduct(id, productData) {
+    const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        title: productData.name || productData.title || "",
+        description: productData.description || "",
+        category: productData.craftType || productData.category || "",
+        materials: productData.material || productData.materials || "",
+        materialCost: Number(productData.materialCost) || 0,
+        laborHours: Number(
+          productData.timeTakenHours || productData.laborHours
+        ) || 0,
+        minimumPrice: Number(
+          productData.minPrice || productData.minimumPrice
+        ) || 0,
+        recommendedPrice: Number(
+          productData.price || productData.recommendedPrice
+        ) || 0,
+        premiumPrice: Number(
+          productData.maxPrice || productData.premiumPrice
+        ) || 0,
+        imageUrl: productData.image || productData.imageUrl || "",
+        status: productData.status || "Ready"
+      })
+    });
+
+    return handleResponse(response);
+  },
+
   async updateStatus(id, status) {
-    return this.updateProduct(id, { status });
+    const product = await this.getProductById(id);
+
+    return this.updateProduct(id, {
+      ...product,
+      status
+    });
   },
 
-  /**
-   * Delete product
-   * @param {string} id - Product ID
-   * @returns {Promise<boolean>} Success status
-   */
   async deleteProduct(id) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    const products = await this.getProducts();
-    const filtered = products.filter((p) => p.id !== id);
-    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(filtered));
+    const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders()
+    });
+
+    await handleResponse(response);
+
     return true;
   }
 };

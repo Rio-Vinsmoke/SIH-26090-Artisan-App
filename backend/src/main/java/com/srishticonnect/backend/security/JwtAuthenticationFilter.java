@@ -7,12 +7,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -37,7 +39,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        // If no Bearer token is present, continue normally
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -47,22 +48,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
             String email = jwtService.extractEmail(token);
 
-            // Authenticate only if user is not already authenticated
             if (email != null &&
-                    SecurityContextHolder.getContext()
-                            .getAuthentication() == null) {
+                    SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 User user = userRepository.findByEmail(email)
                         .orElse(null);
 
-                if (user != null &&
-                        jwtService.isTokenValid(token, user)) {
+                if (user != null && jwtService.isTokenValid(token, user)) {
+
+                    List<SimpleGrantedAuthority> authorities = List.of(
+                            new SimpleGrantedAuthority(
+                                    "ROLE_" + user.getRole().name()
+                            )
+                    );
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
                                     user,
                                     null,
-                                    null
+                                    authorities
                             );
 
                     authentication.setDetails(
@@ -73,13 +77,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext()
                             .setAuthentication(authentication);
                 }
-
             }
 
         } catch (Exception e) {
-            // Invalid or expired token:
-            // Do not authenticate the request.
-            // Spring Security will handle protected endpoints.
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
