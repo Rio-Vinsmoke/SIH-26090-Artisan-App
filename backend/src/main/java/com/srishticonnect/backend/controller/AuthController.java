@@ -1,5 +1,6 @@
 package com.srishticonnect.backend.controller;
 
+import com.srishticonnect.backend.dto.AuthResponse;
 import com.srishticonnect.backend.dto.LoginRequest;
 import com.srishticonnect.backend.dto.RegisterRequest;
 import com.srishticonnect.backend.service.AuthService;
@@ -31,12 +32,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(
+    public ResponseEntity<AuthResponse> login(
             @RequestBody LoginRequest request) {
 
-        String response = authService.login(request);
+        AuthResponse response = authService.login(request);
 
-        if (response.equals("Login successful")) {
+        if (response.getToken() != null) {
             return ResponseEntity.ok(response);
         }
 

@@ -1,9 +1,11 @@
 package com.srishticonnect.backend.service;
 
+import com.srishticonnect.backend.dto.AuthResponse;
 import com.srishticonnect.backend.dto.LoginRequest;
 import com.srishticonnect.backend.dto.RegisterRequest;
 import com.srishticonnect.backend.entity.User;
 import com.srishticonnect.backend.repository.UserRepository;
+import com.srishticonnect.backend.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +14,16 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder) {
+    public AuthService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService) {
+
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public String register(RegisterRequest request) {
@@ -36,7 +43,7 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
 
-        // Encrypt password before storing it in MySQL
+        // Encrypt password before storing in MySQL
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         user.setCraftCluster(request.getCraftCluster());
@@ -47,22 +54,46 @@ public class AuthService {
         return "User registered successfully";
     }
 
-    public String login(LoginRequest request) {
+    public AuthResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElse(null);
 
         if (user == null) {
-            return "User not found";
+            return new AuthResponse(
+                    "User not found",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
         }
 
-        // Compare entered password with encrypted password
         if (!passwordEncoder.matches(
                 request.getPassword(),
                 user.getPassword())) {
-            return "Invalid password";
+
+            return new AuthResponse(
+                    "Invalid password",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
         }
 
-        return "Login successful";
+        // Generate JWT after successful login
+        String token = jwtService.generateToken(user);
+
+        return new AuthResponse(
+                "Login successful",
+                token,
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole().name()
+        );
     }
 }
