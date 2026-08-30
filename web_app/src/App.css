@@ -4898,6 +4898,117 @@
   color: #94a3b8;
 }
 
+/* =========================================================================
+   SMART PRICING MANUAL KEYBOARD INPUTS & CONTROLS
+   ========================================================================= */
+.price-number-input,
+.big-price-input {
+  -moz-appearance: textfield;
+}
+
+.price-number-input::-webkit-outer-spin-button,
+.price-number-input::-webkit-inner-spin-button,
+.big-price-input::-webkit-outer-spin-button,
+.big-price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.price-number-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--color-border-warm, #ded2c3);
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-ink, #27364a);
+  background: #fffdfa;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.price-number-input:focus {
+  border-color: var(--color-terracotta, #b84a2e);
+  box-shadow: 0 0 0 3px rgba(184, 74, 46, 0.12);
+  background: #ffffff;
+}
+
+.big-price-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 380px;
+  background: #ffffff;
+  border: 2px solid var(--color-terracotta, #b84a2e);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(184, 74, 46, 0.12);
+  overflow: hidden;
+}
+
+.rupee-big-icon {
+  margin-left: 14px;
+  color: var(--color-terracotta, #b84a2e);
+  flex-shrink: 0;
+}
+
+.big-price-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--color-ink, #27364a);
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+}
+
+.final-price-sublabel {
+  font-size: 13px;
+  color: var(--color-ink-muted, #765e49);
+  margin-bottom: 12px;
+}
+
+.price-quick-adjust-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.range-item--clickable {
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 0.2s ease;
+  background: transparent;
+  text-align: center;
+}
+
+.range-item--clickable:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-terracotta, #b84a2e);
+  border-radius: 12px;
+  background: rgba(184, 74, 46, 0.05);
+}
+
+.range-apply-hint {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-terracotta, #b84a2e);
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+}
+
+.calculating-badge {
+  font-size: 12px;
+  color: var(--color-terracotta, #b84a2e);
+  font-weight: 600;
+  animation: pulse 1.5s infinite;
+}
+
 
 
 

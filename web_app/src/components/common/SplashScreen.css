@@ -183,7 +183,7 @@
   height: 100%;
   width: 0%;
   background: var(--color-terracotta, #b84a2e);
-  animation: splashLoading 2.8s linear forwards;
+  animation: splashLoading 5.6s linear forwards;
 }
 
 .loading-text {

@@ -96,7 +96,7 @@ export function App() {
 
   return (
     <AppProvider>
-      {showSplash && <SplashScreen onComplete={handleSplashComplete} duration={3000} />}
+      {showSplash && <SplashScreen onComplete={handleSplashComplete} duration={6000} />}
       <MainContentRouter />
       <ToastNotification />
     </AppProvider>

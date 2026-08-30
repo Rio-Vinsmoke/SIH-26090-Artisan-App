@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./SplashScreen.css";
 
-export const SplashScreen = ({ onComplete, duration = 3000 }) => {
+export const SplashScreen = ({ onComplete, duration = 6000 }) => {
   const [isFading, setIsFading] = useState(false);
 
   useEffect(() => {

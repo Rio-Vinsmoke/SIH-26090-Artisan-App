@@ -393,7 +393,7 @@ export const Step2Voice = ({ formData, updateFormData, onNext, onBack }) => {
           onClick={onNext}
           disabled={!formData.voiceTranscript && !formData.image}
         >
-          {t.next}: Smart Price <ArrowRightIcon size={18} />
+          {t.next}: AI Catalog <ArrowRightIcon size={18} />
         </button>
       </div>
     </div>

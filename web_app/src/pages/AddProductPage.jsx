@@ -330,7 +330,7 @@ export const AddProductPage = () => {
         )}
 
         {activeStep === 3 && (
-          <Step4SmartPrice
+          <Step3AICatalog
             formData={formData}
             updateFormData={updateFormData}
             onNext={handleNext}
@@ -339,7 +339,7 @@ export const AddProductPage = () => {
         )}
 
         {activeStep === 4 && (
-          <Step3AICatalog
+          <Step4SmartPrice
             formData={formData}
             updateFormData={updateFormData}
             onNext={handleNext}
