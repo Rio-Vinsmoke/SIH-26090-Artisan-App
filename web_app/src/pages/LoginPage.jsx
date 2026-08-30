@@ -9,7 +9,8 @@ import {
   ArrowRightIcon,
   ShieldCheckIcon,
   UserIcon,
-  PhoneCallIcon
+  PhoneCallIcon,
+  GoogleIcon
 } from "../components/common/Icons";
 
 export const LoginPage = () => {
@@ -382,7 +383,7 @@ export const LoginPage = () => {
 
             {/* Google Divider */}
             <div className="google-login-divider">
-              <span>OR</span>
+              <span>OR CONTINUE WITH</span>
             </div>
 
             {/* Google Login */}
@@ -391,9 +392,12 @@ export const LoginPage = () => {
               className="btn-google-login"
               onClick={handleGoogleLogin}
               disabled={isLoading}
+              title="Sign in securely with your Google Account"
             >
-              <span className="google-icon">G</span>
-              <span>Continue with Google</span>
+              <div className="google-icon-wrapper">
+                <GoogleIcon size={18} />
+              </div>
+              <span className="google-btn-text">Sign in with Google</span>
             </button>
 
           </form>
@@ -599,6 +603,25 @@ export const LoginPage = () => {
                   <ArrowRightIcon size={18} />
                 </>
               )}
+            </button>
+
+            {/* Google Divider */}
+            <div className="google-login-divider">
+              <span>OR SIGN UP WITH</span>
+            </div>
+
+            {/* Google Sign Up */}
+            <button
+              type="button"
+              className="btn-google-login"
+              onClick={handleGoogleLogin}
+              disabled={isLoading}
+              title="Sign up quickly with your Google Account"
+            >
+              <div className="google-icon-wrapper">
+                <GoogleIcon size={18} />
+              </div>
+              <span className="google-btn-text">Sign up with Google</span>
             </button>
 
           </form>

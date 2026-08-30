@@ -4384,23 +4384,22 @@
 .google-login-divider {
   display: flex;
   align-items: center;
-  text-align: center;
-  margin: 16px 0 14px;
-  color: var(--color-indigo-muted);
-  font-size: 12px;
+  margin: 22px 0 16px 0;
+  color: #94a3b8;
+  font-size: 11px;
   font-weight: 700;
+  letter-spacing: 1.2px;
 }
 
 .google-login-divider::before,
 .google-login-divider::after {
   content: "";
   flex: 1;
-  border-bottom: 1px solid var(--color-border-warm);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .google-login-divider span {
-  padding: 0 12px;
-  letter-spacing: 0.5px;
+  padding: 0 14px;
 }
 
 .btn-google-login {
@@ -4410,46 +4409,57 @@
   justify-content: center;
   gap: 12px;
   background-color: #ffffff;
-  color: #374151;
-  border: 1.5px solid #d1d5db;
-  border-radius: var(--radius-md);
-  padding: 11px 16px;
-  font-size: 14px;
-  font-weight: 700;
+  color: #1e293b;
+  border: 1.5px solid #dadce0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 14.5px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
 }
 
 .btn-google-login:hover:not(:disabled) {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.09), 0 2px 4px rgba(0, 0, 0, 0.04);
   transform: translateY(-1px);
+}
+
+.btn-google-login:focus-visible {
+  outline: none;
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2), 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .btn-google-login:active:not(:disabled) {
   transform: translateY(0);
-  background-color: #f3f4f6;
+  background-color: #f1f5f9;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .btn-google-login:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-.google-icon {
-  display: inline-flex;
+.google-icon-wrapper {
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  font-size: 15px;
-  font-weight: 900;
-  color: #4285f4;
-  background: #f1f5f9;
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgba(66, 133, 244, 0.2);
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.google-btn-text {
+  letter-spacing: 0.2px;
 }
 
 /* =========================================================================
