@@ -1,5 +1,5 @@
 import { useApp } from "../../context/AppContext";
-import { GlobeIcon, Volume2Icon, SparklesIcon, LogOutIcon } from "../common/Icons";
+import { GlobeIcon, SparklesIcon, LogOutIcon } from "../common/Icons";
 
 export const Header = () => {
   const {
@@ -7,8 +7,6 @@ export const Header = () => {
     setLanguage,
     t,
     navigateTo,
-    isAudioGuideActive,
-    toggleAudioGuide,
     currentUser,
     logout
   } = useApp();
@@ -38,22 +36,8 @@ export const Header = () => {
           </div>
         </div>
 
-        {/* Right side controls: Language, Audio Guide, Profile & Logout */}
+        {/* Right side controls: Language, Profile & Logout */}
         <div className="app-header__actions">
-          {/* Audio Guidance Toggle */}
-          <button
-            type="button"
-            className={`audio-toggle-btn ${isAudioGuideActive ? "audio-toggle-btn--active" : ""}`}
-            onClick={toggleAudioGuide}
-            title={isAudioGuideActive ? "Voice Assistant Enabled" : "Enable Voice Assistant"}
-            aria-label="Toggle Voice Assistant"
-          >
-            <Volume2Icon size={18} />
-            <span className="audio-toggle-btn__text">
-              {isAudioGuideActive ? "Voice On" : "Voice Guide"}
-            </span>
-            {isAudioGuideActive && <span className="pulsing-voice-dot"></span>}
-          </button>
 
           {/* Language Switcher */}
           <div className="language-selector">

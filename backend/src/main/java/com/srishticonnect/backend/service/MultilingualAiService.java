@@ -32,8 +32,12 @@ public class MultilingualAiService {
         String transcript = request.getTranscript();
         String lang = request.getLanguage() != null ? request.getLanguage().toLowerCase() : "en";
 
-        if (transcript == null || transcript.isBlank()) {
-            return buildFallbackResponse("Handcrafted Artisan Creation", "हस्तनिर्मित शिल्प", "హస్తకళా సృష్టి", "Traditional handicraft made with heritage techniques.");
+        if (transcript == null || transcript.isBlank() || transcript.trim().split("\\s+").length < 2) {
+            VoiceExtractResponse rejected = new VoiceExtractResponse();
+            rejected.setSuccess(false);
+            rejected.setValidCraft(false);
+            rejected.setMessage("Voice note is too brief. Please speak about your craft item, materials used, or how it is made.");
+            return rejected;
         }
 
         // Try Gemini API if key is available
@@ -53,29 +57,33 @@ public class MultilingualAiService {
     }
 
     private VoiceExtractResponse callGeminiApi(String transcript, String language, String craftHint) throws Exception {
-        String prompt = "You are an expert Indian artisan curator. An artisan spoke the following in " + language + ": \"" + transcript + "\". " +
-                "Extract structured product attributes and generate professional, evocative buyer-facing catalog descriptions in English, Hindi, and Telugu. " +
-                "Respond ONLY with a valid JSON object matching this exact schema: " +
-                "{" +
-                "\"title\": \"string (English title)\", " +
-                "\"titleHindi\": \"string (Hindi title)\", " +
-                "\"titleTelugu\": \"string (Telugu title)\", " +
-                "\"craftType\": \"string (English craft name)\", " +
-                "\"craftTypeHindi\": \"string (Hindi craft name)\", " +
-                "\"craftTypeTelugu\": \"string (Telugu craft name)\", " +
-                "\"material\": \"string\", " +
-                "\"color\": \"string\", " +
-                "\"dimensions\": \"string\", " +
-                "\"timeTakenHours\": number, " +
-                "\"materialCost\": number, " +
-                "\"region\": \"string\", " +
-                "\"description\": \"string (English description)\", " +
-                "\"descriptionHindi\": \"string (Hindi description)\", " +
-                "\"descriptionTelugu\": \"string (Telugu description)\", " +
-                "\"craftProcess\": \"string\", " +
-                "\"culturalSignificance\": \"string\", " +
-                "\"uniqueness\": \"string\", " +
-                "\"keywords\": [\"string\"]" +
+        String prompt = "You are an expert Indian artisan curator and digital cataloguer for rural handicrafts and handlooms. An artisan spoke the following in " + language + ": \"" + transcript + "\".\n" +
+                "1. Guardrail Check: Determine if the speech mentions or relates to a handcrafted item, handloom textile, art, raw material (clay, silk, brass, wood, paint), or physical craft creation. If the speech is completely off-topic, gibberish, or empty noise (e.g. 'hello mic testing', 'what is the weather', 'asdfghjkl'), set validCraft: false, and provide friendly guidance in 'message'.\n" +
+                "2. If validCraft is true, extract structured attributes and generate evocative buyer-facing catalog descriptions in English, Hindi, and Telugu. Emphasize: (a) authentic heritage technique & materials, (b) who this product is useful for (buyer personas: home decor, festive & wedding gifting, organic living, cultural art collectors).\n" +
+                "Respond ONLY with a valid JSON object matching this exact schema:\n" +
+                "{\n" +
+                "\"validCraft\": true,\n" +
+                "\"message\": \"string (e.g. Extracted craft details successfully)\",\n" +
+                "\"title\": \"string (English title)\",\n" +
+                "\"titleHindi\": \"string (Hindi title)\",\n" +
+                "\"titleTelugu\": \"string (Telugu title)\",\n" +
+                "\"craftType\": \"string (English craft name)\",\n" +
+                "\"craftTypeHindi\": \"string (Hindi craft name)\",\n" +
+                "\"craftTypeTelugu\": \"string (Telugu craft name)\",\n" +
+                "\"material\": \"string\",\n" +
+                "\"color\": \"string\",\n" +
+                "\"dimensions\": \"string\",\n" +
+                "\"timeTakenHours\": number,\n" +
+                "\"materialCost\": number,\n" +
+                "\"region\": \"string\",\n" +
+                "\"description\": \"string (English description with making process and target buyer utility)\",\n" +
+                "\"descriptionHindi\": \"string (Hindi description with making process and target buyer utility)\",\n" +
+                "\"descriptionTelugu\": \"string (Telugu description with making process and target buyer utility)\",\n" +
+                "\"targetBuyerUse\": \"string (e.g. Home Decor & Festive Gifting)\",\n" +
+                "\"craftProcess\": \"string\",\n" +
+                "\"culturalSignificance\": \"string\",\n" +
+                "\"uniqueness\": \"string\",\n" +
+                "\"keywords\": [\"string\"]\n" +
                 "}";
 
         String requestBody = objectMapper.writeValueAsString(
@@ -113,7 +121,9 @@ public class MultilingualAiService {
                 text = text.trim();
                 VoiceExtractResponse res = objectMapper.readValue(text, VoiceExtractResponse.class);
                 res.setSuccess(true);
-                res.setMessage("Extracted via Google Gemini AI.");
+                if (res.getMessage() == null || res.getMessage().isBlank()) {
+                    res.setMessage("Extracted via Google Gemini AI.");
+                }
                 return res;
             }
         }

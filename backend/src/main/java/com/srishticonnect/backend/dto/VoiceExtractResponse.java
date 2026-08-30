@@ -1,10 +1,13 @@
 package com.srishticonnect.backend.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class VoiceExtractResponse {
 
     private boolean success = true;
+    private boolean validCraft = true;
     private String message;
 
     private String title;
@@ -29,10 +32,27 @@ public class VoiceExtractResponse {
     private String craftProcess;
     private String culturalSignificance;
     private String uniqueness;
+    private String targetBuyerUse;
 
     private List<String> keywords;
 
     public VoiceExtractResponse() {
+    }
+
+    public boolean isValidCraft() {
+        return validCraft;
+    }
+
+    public void setValidCraft(boolean validCraft) {
+        this.validCraft = validCraft;
+    }
+
+    public String getTargetBuyerUse() {
+        return targetBuyerUse;
+    }
+
+    public void setTargetBuyerUse(String targetBuyerUse) {
+        this.targetBuyerUse = targetBuyerUse;
     }
 
     public boolean isSuccess() {
