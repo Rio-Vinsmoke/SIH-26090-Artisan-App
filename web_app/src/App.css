@@ -4808,6 +4808,86 @@
   gap: 10px;
 }
 
+/* =========================================================================
+   NEURAL AI STUDIO PROGRESS OVERLAY & CHECKERBOARD STYLES
+   ========================================================================= */
+.photo-preview-img--transparent-checker {
+  background-image: 
+    linear-gradient(45deg, #e2e8f0 25%, transparent 25%), 
+    linear-gradient(-45deg, #e2e8f0 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #e2e8f0 75%), 
+    linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  background-color: #f8fafc;
+}
+
+.neural-processing-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(6px);
+  border-radius: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  z-index: 10;
+  color: #ffffff;
+  animation: fadeIn 0.25s ease-in;
+}
+
+.neural-spinner-circle {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--color-terracotta, #b84a2e);
+  border-right-color: #f59e0b;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  margin-bottom: 14px;
+}
+
+.neural-progress-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0 0 6px 0;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+.neural-progress-text {
+  font-size: 13px;
+  color: #cbd5e1;
+  margin: 0 0 16px 0;
+  max-width: 380px;
+}
+
+.neural-progress-bar-wrap {
+  width: 100%;
+  max-width: 320px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full, 9999px);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.neural-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-terracotta, #b84a2e), #f59e0b);
+  border-radius: var(--radius-full, 9999px);
+  transition: width 0.3s ease-out;
+}
+
+.neural-progress-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
 
 
 

@@ -1,5 +1,6 @@
 import { authService } from "./authService";
 import { API_BASE_URL } from "./apiConfig";
+import { processCraftImageAI } from "./imageStudioService";
 
 const getAuthHeaders = () => {
   const token = authService.getToken();
@@ -17,7 +18,6 @@ const getAuthHeaders = () => {
 
 const handleResponse = async (response) => {
   if (response.status === 401 || response.status === 403) {
-    // If auth failed, still provide descriptive message
     throw new Error("Your session has expired or authentication is required. Please log in.");
   }
 
@@ -31,32 +31,48 @@ const handleResponse = async (response) => {
 
 export const aiService = {
   /**
-   * Process product image: background removal / studio white / bokeh blur + lighting & clarity enhancement
+   * Process product image using Deep Neural Network (RMBG / U2-Net) client-side engine
+   * with fallback to backend if desired.
    */
   async processImage({
     image,
-    mode = "blur_bg",
+    mode = "white_bg",
     brightness = 10,
     contrast = 15,
     vibrance = 20,
     sharpness = 20,
-    preset = "auto"
+    onProgress = () => {}
   }) {
-    const response = await fetch(`${API_BASE_URL}/ai/image/process`, {
-      method: "POST",
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        image,
+    try {
+      // Primary: High-precision client-side deep neural network
+      return await processCraftImageAI({
+        imageSrc: image,
         mode,
         brightness,
         contrast,
         vibrance,
         sharpness,
-        preset
-      })
-    });
+        onProgress
+      });
+    } catch (clientErr) {
+      console.warn("Client neural processing warning, trying backend service:", clientErr);
 
-    return handleResponse(response);
+      // Fallback: Backend service
+      const response = await fetch(`${API_BASE_URL}/ai/image/process`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          image,
+          mode,
+          brightness,
+          contrast,
+          vibrance,
+          sharpness
+        })
+      });
+
+      return handleResponse(response);
+    }
   },
 
   /**

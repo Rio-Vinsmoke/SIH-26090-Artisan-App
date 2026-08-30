@@ -9,15 +9,16 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
   const cameraInputRef = useRef(null);
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [progressPercent, setProgressPercent] = useState(0);
   const [processingStatusText, setProcessingStatusText] = useState("");
   const [originalImage, setOriginalImage] = useState(formData.originalImage || formData.image || null);
-  const [bgMode, setBgMode] = useState("blur_bg"); // "blur_bg" | "white_bg" | "remove_bg" | "original_bg"
+  const [bgMode, setBgMode] = useState("white_bg"); // "white_bg" | "blur_bg" | "remove_bg" | "original_bg"
   const [brightness, setBrightness] = useState(10);
   const [contrast, setContrast] = useState(15);
-  const [vibrance, setVibrance] = useState(20);
+  const [vibrance, setVibrance] = useState(25);
   const [sharpness, setSharpness] = useState(20);
   const [appliedOperations, setAppliedOperations] = useState([]);
-  const [viewMode, setViewMode] = useState("processed"); // "processed" | "original" | "split"
+  const [viewMode, setViewMode] = useState("processed"); // "processed" | "original"
 
   const samplePresets = [
     {
@@ -56,7 +57,7 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
         });
         setAppliedOperations([]);
         setViewMode("processed");
-        showToast("📸 Photo loaded! Choose processing options and tap 'Run AI Enhancement'.");
+        showToast("📸 Photo loaded! Choose a background style and tap 'Run AI Studio Enhancement'.");
       };
       reader.readAsDataURL(file);
     }
@@ -81,7 +82,7 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
         setBgMode("white_bg");
         setBrightness(12);
         setContrast(18);
-        setVibrance(15);
+        setVibrance(20);
         setSharpness(25);
         break;
       case "vibrant":
@@ -110,7 +111,7 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
   };
 
   const handleRunAiProcessing = async () => {
-    const sourceImg = originalImage || formData.image;
+    const sourceImg = originalImage || formData.originalImage || formData.image;
     if (!sourceImg) {
       showToast("⚠️ Please select or take a craft photo first.");
       return;
@@ -118,7 +119,8 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
 
     try {
       setIsProcessing(true);
-      setProcessingStatusText("Segmenting craft subject from backdrop...");
+      setProgressPercent(10);
+      setProcessingStatusText("Initializing Neural Studio Engine...");
 
       const response = await aiService.processImage({
         image: sourceImg,
@@ -126,10 +128,14 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
         brightness: Number(brightness),
         contrast: Number(contrast),
         vibrance: Number(vibrance),
-        sharpness: Number(sharpness)
+        sharpness: Number(sharpness),
+        onProgress: (percent, statusText) => {
+          setProgressPercent(percent);
+          setProcessingStatusText(statusText);
+        }
       });
 
-      if (response.success && response.processedImageUrl) {
+      if (response && response.processedImageUrl) {
         updateFormData({
           image: response.processedImageUrl,
           originalImage: sourceImg,
@@ -137,30 +143,32 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
           imageProcessingMode: bgMode
         });
         setAppliedOperations(response.appliedOperations || [
-          "Auto-balanced lighting and contrast",
-          "Color vibrance optimized for handmade textures",
-          "Background processed (" + bgMode + ")"
+          "Deep Neural Semantic Segmentation (RMBG-1.4)",
+          "Enhanced Lighting & Balanced Contrast",
+          "Optimized Color Vibrance",
+          `Applied Background: ${bgMode.replace("_", " ").toUpperCase()}`
         ]);
         setViewMode("processed");
-        showToast("✨ AI Image Processed: Background & lighting enhanced!");
+        showToast("✨ AI Enhancement Complete! Studio-grade cutout & lighting applied.");
       } else {
-        throw new Error(response.message || "Failed to process image on server.");
+        throw new Error("Could not produce processed image.");
       }
     } catch (err) {
       console.error("AI Image Processing error:", err);
-      showToast(`⚠️ AI Processing Note: ${err.message || "Unable to reach backend image service."}`);
-      // Fallback local enhancement flag so artisan can still proceed seamlessly
+      showToast(`⚠️ AI Processing Note: ${err.message || "Failed to process image."}`);
       updateFormData({ isAiEnhanced: true });
     } finally {
       setIsProcessing(false);
+      setProgressPercent(0);
       setProcessingStatusText("");
     }
   };
 
   const handleResetToOriginal = () => {
-    if (originalImage) {
+    const source = originalImage || formData.originalImage;
+    if (source) {
       updateFormData({
-        image: originalImage,
+        image: source,
         isAiEnhanced: false
       });
       setAppliedOperations([]);
@@ -181,11 +189,11 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
         <div className="title-with-ai-badge">
           <h2 className="step-card__title">{t.step1Title}</h2>
           <span className="ai-chip">
-            <SparklesIcon size={14} /> AI Background & Clarity Engine
+            <SparklesIcon size={14} /> AI Neural Studio & Clarity Engine
           </span>
         </div>
         <p className="step-card__subtitle">
-          Upload or capture your craft photo. Our AI removes clutter, optimizes lighting, and produces buyer-ready images.
+          Upload or capture your craft photo. Our Deep Learning AI extracts the subject with sub-pixel precision, optimizes lighting, and produces buyer-ready images.
         </p>
       </div>
 
@@ -198,7 +206,7 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
                 <img
                   src={currentDisplayImage}
                   alt="Craft Preview"
-                  className={`photo-preview-img ${formData.isAiEnhanced && viewMode === "processed" ? "photo-preview-img--enhanced" : ""}`}
+                  className={`photo-preview-img ${bgMode === "remove_bg" && formData.isAiEnhanced && viewMode === "processed" ? "photo-preview-img--transparent-checker" : ""}`}
                 />
 
                 {formData.isAiEnhanced && (
@@ -222,14 +230,30 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
                       className={`btn-view-toggle ${viewMode === "processed" ? "active" : ""}`}
                       onClick={() => setViewMode("processed")}
                     >
-                      <SparklesIcon size={14} /> AI Processed
+                      <SparklesIcon size={14} /> AI Enhanced
                     </button>
+                  </div>
+                )}
+
+                {/* Neural Processing Progress Overlay */}
+                {isProcessing && (
+                  <div className="neural-processing-overlay">
+                    <div className="neural-spinner-circle"></div>
+                    <h4 className="neural-progress-title">Deep Learning Image Studio</h4>
+                    <p className="neural-progress-text">{processingStatusText || "Segmenting craft subject..."}</p>
+                    <div className="neural-progress-bar-wrap">
+                      <div
+                        className="neural-progress-bar-fill"
+                        style={{ width: `${Math.max(10, progressPercent)}%` }}
+                      ></div>
+                    </div>
+                    <span className="neural-progress-pct">{progressPercent}% Complete</span>
                   </div>
                 )}
               </div>
 
               {/* Operations Applied Tag Badges */}
-              {appliedOperations.length > 0 && viewMode === "processed" && (
+              {appliedOperations.length > 0 && viewMode === "processed" && !isProcessing && (
                 <div className="applied-ops-banner">
                   <span className="applied-ops-title">Applied AI Enhancements:</span>
                   <ul className="applied-ops-list">
@@ -248,6 +272,7 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
                   type="button"
                   className="btn-secondary btn-sm"
                   onClick={() => fileInputRef.current?.click()}
+                  disabled={isProcessing}
                 >
                   <CameraIcon size={16} /> Choose File
                 </button>
@@ -255,6 +280,7 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
                   type="button"
                   className="btn-secondary btn-sm"
                   onClick={() => cameraInputRef.current?.click()}
+                  disabled={isProcessing}
                 >
                   📸 Take Photo
                 </button>
@@ -263,6 +289,7 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
                     type="button"
                     className="btn-secondary btn-sm"
                     onClick={handleResetToOriginal}
+                    disabled={isProcessing}
                   >
                     <RefreshCwIcon size={14} /> Reset Original
                   </button>
@@ -322,7 +349,7 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
             <SparklesIcon size={20} className="text-primary" />
             <div>
               <h3 className="studio-title">AI Image Studio Controls</h3>
-              <p className="studio-subtitle">Select background treatment and lighting enhancement parameters</p>
+              <p className="studio-subtitle">Neural background treatment and professional lighting optimization</p>
             </div>
           </div>
 
@@ -332,22 +359,22 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
             <div className="bg-mode-grid">
               <button
                 type="button"
+                className={`bg-mode-card ${bgMode === "white_bg" ? "bg-mode-card--selected" : ""}`}
+                onClick={() => setBgMode("white_bg")}
+              >
+                <span className="bg-mode-icon">⬜</span>
+                <span className="bg-mode-title">Studio Pure White</span>
+                <span className="bg-mode-desc">Clean marketplace catalog white + realistic soft ground shadow</span>
+              </button>
+
+              <button
+                type="button"
                 className={`bg-mode-card ${bgMode === "blur_bg" ? "bg-mode-card--selected" : ""}`}
                 onClick={() => setBgMode("blur_bg")}
               >
                 <span className="bg-mode-icon">🌫️</span>
                 <span className="bg-mode-title">Portrait Bokeh Blur</span>
-                <span className="bg-mode-desc">Blurs background, keeps craft focused</span>
-              </button>
-
-              <button
-                type="button"
-                className={`bg-mode-card ${bgMode === "white_bg" ? "bg-mode-card--selected" : ""}`}
-                onClick={() => setBgMode("white_bg")}
-              >
-                <span className="bg-mode-icon">⬜</span>
-                <span className="bg-mode-title">Studio White</span>
-                <span className="bg-mode-desc">Clean marketplace catalog white backdrop</span>
+                <span className="bg-mode-desc">Optical depth blur on background, keeps craft razor-sharp</span>
               </button>
 
               <button
@@ -357,7 +384,7 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
               >
                 <span className="bg-mode-icon">🔲</span>
                 <span className="bg-mode-title">Transparent PNG</span>
-                <span className="bg-mode-desc">Removes background completely</span>
+                <span className="bg-mode-desc">Extracts craft with sub-pixel alpha matting</span>
               </button>
 
               <button
@@ -366,8 +393,8 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
                 onClick={() => setBgMode("original_bg")}
               >
                 <span className="bg-mode-icon">🖼️</span>
-                <span className="bg-mode-title">Keep Original</span>
-                <span className="bg-mode-desc">Enhance lighting while preserving scene</span>
+                <span className="bg-mode-title">Natural Environment</span>
+                <span className="bg-mode-desc">Enhances lighting while preserving artisan workshop scene</span>
               </button>
             </div>
           </div>
@@ -441,7 +468,7 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
 
             <div className="slider-item">
               <div className="slider-label-row">
-                <span>Brightness:</span>
+                <span>Brightness / Exposure:</span>
                 <strong>{brightness > 0 ? `+${brightness}` : brightness}</strong>
               </div>
               <input
@@ -480,10 +507,10 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
             >
               <SparklesIcon size={18} />
               {isProcessing
-                ? (processingStatusText || "Processing Craft Image...")
+                ? `${processingStatusText || "Processing with Deep Neural AI..."} (${progressPercent}%)`
                 : formData.isAiEnhanced
                 ? "Re-Process with Current Settings"
-                : "Run AI Image Enhancement"}
+                : "Run AI Studio Enhancement"}
             </button>
           </div>
         </div>
@@ -498,6 +525,7 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
                 type="button"
                 className={`preset-chip ${formData.image === p.img || originalImage === p.img ? "preset-chip--selected" : ""}`}
                 onClick={() => selectPreset(p)}
+                disabled={isProcessing}
               >
                 <img src={p.img} alt={p.name} className="preset-thumb" />
                 <div className="preset-text">
@@ -518,7 +546,7 @@ export const Step1Photo = ({ formData, updateFormData, onNext }) => {
           type="button"
           className="btn-primary btn-next"
           onClick={onNext}
-          disabled={!formData.image}
+          disabled={!formData.image || isProcessing}
         >
           {t.next}: Voice Details <ArrowRightIcon size={18} />
         </button>

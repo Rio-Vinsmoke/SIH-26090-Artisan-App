@@ -1,0 +1,398 @@
+/* =====================================================
+   SRISHTICONNECT
+   INDIAN TRADITIONAL PENCIL / PAPER THEME SPLASH SCREEN
+   ===================================================== */
+
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.94),
+    rgba(250, 246, 237, 0.98) 55%,
+    #f5ecdf
+  );
+  animation: splashAppear 0.8s ease-out;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+  overflow: hidden;
+  user-select: none;
+}
+
+.splash-screen--fading {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* =====================================================
+   PAPER TEXTURE OVERLAY
+   ===================================================== */
+.splash-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.28;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 4px,
+    rgba(100, 70, 40, 0.035) 5px
+  );
+  z-index: 1;
+}
+
+/* =====================================================
+   SPLASH CONTENT
+   ===================================================== */
+.splash-content {
+  position: relative;
+  z-index: 10;
+  max-width: 850px;
+  padding: 30px;
+  animation: splashContentAppear 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* =====================================================
+   LOGO SYMBOL
+   ===================================================== */
+.brand-symbol {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.symbol-circle {
+  width: 82px;
+  height: 82px;
+  border: 2px solid var(--color-terracotta, #b84a2e);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-terracotta, #b84a2e);
+  font-size: 35px;
+  position: relative;
+  animation: floating 3s ease-in-out infinite;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.symbol-circle::before,
+.symbol-circle::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--color-terracotta, #b84a2e);
+  transform: rotate(45deg);
+  background: #faf6ed;
+}
+
+.symbol-circle::before {
+  top: -7px;
+}
+
+.symbol-circle::after {
+  bottom: -7px;
+}
+
+/* =====================================================
+   LOGO TEXT
+   ===================================================== */
+.splash-content h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(44px, 7vw, 82px);
+  font-weight: 500;
+  letter-spacing: -1.5px;
+  color: #27364a;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.splash-content h1 span {
+  color: var(--color-terracotta, #b84a2e);
+}
+
+/* =====================================================
+   ORNAMENT DIVIDER
+   ===================================================== */
+.splash-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin: 18px 0;
+}
+
+.splash-ornament span {
+  width: 110px;
+  height: 1px;
+  background: var(--color-terracotta, #b84a2e);
+  opacity: 0.55;
+}
+
+.splash-ornament b {
+  color: #c58a32;
+  font-size: 17px;
+}
+
+/* =====================================================
+   TAGLINE & DESCRIPTION
+   ===================================================== */
+.splash-content h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(21px, 3vw, 32px);
+  font-weight: 500;
+  color: #27364a;
+  margin-bottom: 16px;
+}
+
+.splash-content p {
+  color: #765e49;
+  font-size: 16px;
+  line-height: 1.8;
+  letter-spacing: 0.3px;
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+/* =====================================================
+   LOADING BAR
+   ===================================================== */
+.loading-area {
+  margin-top: 44px;
+}
+
+.loading-line {
+  width: 200px;
+  height: 4px;
+  margin: auto;
+  background: #e3d6c5;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.loading-progress {
+  height: 100%;
+  width: 0%;
+  background: var(--color-terracotta, #b84a2e);
+  animation: splashLoading 2.8s linear forwards;
+}
+
+.loading-text {
+  margin-top: 14px;
+  font-size: 13px;
+  color: #8b7764;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+/* =====================================================
+   TRADITIONAL ART MOTIFS (PENCIL STYLE)
+   ===================================================== */
+.splash-art {
+  position: absolute;
+  color: #a99a89;
+  opacity: 0.32;
+  z-index: 2;
+  user-select: none;
+  font-family: Georgia, serif;
+  pointer-events: none;
+  transition: transform 0.5s ease-out;
+}
+
+/* Elephant */
+.splash-elephant {
+  left: 5%;
+  top: 35%;
+  font-size: clamp(65px, 7vw, 100px);
+  transform: rotate(-5deg);
+}
+
+/* Lotus */
+.splash-lotus {
+  left: 7%;
+  bottom: 8%;
+  font-size: clamp(65px, 7vw, 100px);
+}
+
+/* Mandala */
+.splash-mandala {
+  right: 5%;
+  top: 13%;
+  width: clamp(130px, 14vw, 190px);
+  height: clamp(130px, 14vw, 190px);
+  border: 2px solid #d9ccbc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(50px, 6vw, 75px);
+  transform: rotate(15deg);
+}
+
+.splash-mandala::before {
+  content: "";
+  position: absolute;
+  width: 75%;
+  height: 75%;
+  border: 1px dashed #a99a89;
+  border-radius: 50%;
+}
+
+/* Peacock */
+.splash-peacock {
+  right: 7%;
+  bottom: 12%;
+  font-size: clamp(65px, 7vw, 95px);
+  transform: rotate(5deg);
+}
+
+/* Bell */
+.splash-bell {
+  left: 36%;
+  top: 8%;
+  font-size: clamp(40px, 4vw, 55px);
+}
+
+/* Flower */
+.splash-flower {
+  right: 28%;
+  bottom: 7%;
+  font-size: clamp(45px, 5vw, 65px);
+}
+
+/* Pot */
+.splash-pot {
+  left: 16%;
+  top: 13%;
+  font-size: clamp(50px, 5vw, 70px);
+}
+
+/* Musical instrument */
+.splash-instrument {
+  right: 23%;
+  top: 6%;
+  font-size: clamp(45px, 4vw, 60px);
+  transform: rotate(20deg);
+}
+
+/* =====================================================
+   INDIAN CRAFT LABELS
+   ===================================================== */
+.splash-craft-label {
+  position: absolute;
+  color: #a99a89;
+  opacity: 0.45;
+  font-family: Georgia, serif;
+  font-size: 18px;
+  line-height: 1.6;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.splash-craft-label small {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.splash-label-left {
+  left: 6%;
+  bottom: 7%;
+  text-align: left;
+}
+
+.splash-label-right {
+  right: 6%;
+  top: 7%;
+  text-align: right;
+}
+
+/* =====================================================
+   ANIMATIONS
+   ===================================================== */
+@keyframes splashLoading {
+  0% {
+    width: 0%;
+  }
+  60% {
+    width: 72%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes floating {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes splashAppear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes splashContentAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* =====================================================
+   MOBILE RESPONSIVE
+   ===================================================== */
+@media (max-width: 700px) {
+  .splash-content {
+    padding: 20px 16px;
+  }
+
+  .splash-content h1 {
+    font-size: 42px;
+  }
+
+  .splash-content h2 {
+    font-size: 20px;
+  }
+
+  .splash-content p {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .splash-art {
+    opacity: 0.16;
+  }
+
+  .splash-craft-label {
+    display: none;
+  }
+
+  .symbol-circle {
+    width: 68px;
+    height: 68px;
+    font-size: 28px;
+  }
+}

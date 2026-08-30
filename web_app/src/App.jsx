@@ -11,6 +11,7 @@ import { ProductDetailsPage } from "./pages/ProductDetailsPage";
 import { MarketLinkagePage } from "./pages/MarketLinkagePage";
 import { HelpPage } from "./pages/HelpPage";
 import { PublicProductShowcasePage } from "./pages/PublicProductShowcasePage";
+import { SplashScreen } from "./components/common/SplashScreen";
 import "./App.css";
 
 const MainContentRouter = () => {
@@ -76,8 +77,26 @@ const ToastNotification = () => {
 };
 
 export function App() {
+  const [showSplash, setShowSplash] = useState(() => {
+    try {
+      return !sessionStorage.getItem("hasSeenSplash");
+    } catch {
+      return false;
+    }
+  });
+
+  const handleSplashComplete = () => {
+    try {
+      sessionStorage.setItem("hasSeenSplash", "true");
+    } catch {
+      // ignore storage error if cookies disabled
+    }
+    setShowSplash(false);
+  };
+
   return (
     <AppProvider>
+      {showSplash && <SplashScreen onComplete={handleSplashComplete} duration={3000} />}
       <MainContentRouter />
       <ToastNotification />
     </AppProvider>
