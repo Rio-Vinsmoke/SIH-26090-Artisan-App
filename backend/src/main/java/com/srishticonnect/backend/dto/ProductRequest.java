@@ -17,6 +17,20 @@ public class ProductRequest {
     private String imageUrl;
     private String status;
 
+    private String titleHindi;
+    private String titleTelugu;
+    private String descriptionHindi;
+    private String descriptionTelugu;
+    private String color;
+    private String dimensions;
+    private String region;
+    private String craftProcess;
+    private String culturalSignificance;
+    private String uniqueness;
+    private Boolean isAiEnhanced;
+    private String voiceTranscript;
+    private String qrCodeUrl;
+
     public ProductRequest() {
     }
 
@@ -106,5 +120,109 @@ public class ProductRequest {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getTitleHindi() {
+        return titleHindi;
+    }
+
+    public void setTitleHindi(String titleHindi) {
+        this.titleHindi = titleHindi;
+    }
+
+    public String getTitleTelugu() {
+        return titleTelugu;
+    }
+
+    public void setTitleTelugu(String titleTelugu) {
+        this.titleTelugu = titleTelugu;
+    }
+
+    public String getDescriptionHindi() {
+        return descriptionHindi;
+    }
+
+    public void setDescriptionHindi(String descriptionHindi) {
+        this.descriptionHindi = descriptionHindi;
+    }
+
+    public String getDescriptionTelugu() {
+        return descriptionTelugu;
+    }
+
+    public void setDescriptionTelugu(String descriptionTelugu) {
+        this.descriptionTelugu = descriptionTelugu;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getDimensions() {
+        return dimensions;
+    }
+
+    public void setDimensions(String dimensions) {
+        this.dimensions = dimensions;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getCraftProcess() {
+        return craftProcess;
+    }
+
+    public void setCraftProcess(String craftProcess) {
+        this.craftProcess = craftProcess;
+    }
+
+    public String getCulturalSignificance() {
+        return culturalSignificance;
+    }
+
+    public void setCulturalSignificance(String culturalSignificance) {
+        this.culturalSignificance = culturalSignificance;
+    }
+
+    public String getUniqueness() {
+        return uniqueness;
+    }
+
+    public void setUniqueness(String uniqueness) {
+        this.uniqueness = uniqueness;
+    }
+
+    public Boolean getIsAiEnhanced() {
+        return isAiEnhanced;
+    }
+
+    public void setIsAiEnhanced(Boolean isAiEnhanced) {
+        this.isAiEnhanced = isAiEnhanced;
+    }
+
+    public String getVoiceTranscript() {
+        return voiceTranscript;
+    }
+
+    public void setVoiceTranscript(String voiceTranscript) {
+        this.voiceTranscript = voiceTranscript;
+    }
+
+    public String getQrCodeUrl() {
+        return qrCodeUrl;
+    }
+
+    public void setQrCodeUrl(String qrCodeUrl) {
+        this.qrCodeUrl = qrCodeUrl;
     }
 }

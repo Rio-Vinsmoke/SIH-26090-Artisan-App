@@ -8,12 +8,18 @@ import {
   ShieldCheckIcon,
   EditIcon,
   CheckIcon,
-  CopyIcon
+  CopyIcon,
+  DownloadIcon,
+  GlobeIcon,
+  QrCodeIcon,
+  FileTextIcon
 } from "../components/common/Icons";
 
 export const ProductDetailsPage = () => {
   const { selectedProduct, updateProductStatus, navigateTo, showToast, t } = useApp();
   const [showShareModal, setShowShareModal] = useState(false);
+  const [activeStoryLang, setActiveStoryLang] = useState("en");
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
   if (!selectedProduct) {
     return (
@@ -27,14 +33,15 @@ export const ProductDetailsPage = () => {
   }
 
   const p = selectedProduct;
+  const publicShowcaseUrl = `${window.location.origin}/item/${p.id}`;
 
   const handleShareClick = () => {
     setShowShareModal(true);
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard?.writeText?.(p.marketLink || `https://srishticonnect.artisan.in/item/${p.id}`);
-    showToast("🔗 Buyer share link copied to clipboard!");
+    navigator.clipboard?.writeText?.(publicShowcaseUrl);
+    showToast("🔗 Buyer showcase link copied to clipboard!");
   };
 
   const handleSendToMarketplace = () => {
@@ -42,6 +49,64 @@ export const ProductDetailsPage = () => {
     setShowShareModal(false);
     showToast(`🚀 "${p.name}" has been sent to ONDC & State Craft Network!`);
   };
+
+  const handleDownloadPdf = async () => {
+    try {
+      setIsDownloadingPdf(true);
+      showToast("📄 Generating official Artisan Heritage Dossier PDF...");
+
+      // Download from Spring Boot backend PDF endpoint
+      const response = await fetch(`http://localhost:8080/api/products/${p.id}/pdf`, {
+        method: "GET"
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download PDF from server.");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `SrishtiConnect-Dossier-${p.id || "Craft"}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      showToast("🎉 Product Profile Dossier downloaded successfully!");
+    } catch (err) {
+      console.error("PDF Download error:", err);
+      showToast("⚠️ Could not download PDF directly from backend. Generating print view...");
+      window.print();
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
+  const handleDownloadQr = () => {
+    const a = document.createElement("a");
+    a.href = `http://localhost:8080/api/products/${p.id}/qr`;
+    a.download = `SrishtiConnect-QR-Product-${p.id}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast("📸 QR Code image downloaded!");
+  };
+
+  const displayDescription =
+    activeStoryLang === "hi" && p.descriptionHindi
+      ? p.descriptionHindi
+      : activeStoryLang === "te" && p.descriptionTelugu
+      ? p.descriptionTelugu
+      : p.description || "Authentic handmade craft.";
+
+  const displayTitle =
+    activeStoryLang === "hi" && p.nameHindi
+      ? p.nameHindi
+      : activeStoryLang === "te" && p.nameTelugu
+      ? p.nameTelugu
+      : p.name;
 
   return (
     <div className="product-details-page">
@@ -56,6 +121,14 @@ export const ProductDetailsPage = () => {
         </button>
 
         <div className="details-top-actions">
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={handleDownloadPdf}
+            disabled={isDownloadingPdf}
+          >
+            <DownloadIcon size={16} /> {isDownloadingPdf ? "Generating PDF..." : "Download Product Profile (PDF)"}
+          </button>
           <button
             type="button"
             className="btn-secondary"
@@ -87,54 +160,105 @@ export const ProductDetailsPage = () => {
               }}
             />
             <div className="details-img-overlay-badges">
-              <span className={`status-badge status-badge--${p.status.toLowerCase()}`}>
+              <span className={`status-badge status-badge--${(p.status || "ready").toLowerCase()}`}>
                 Status: {p.status === "Ready" ? "Ready to Share" : p.status === "Shared" ? "Sent to Market" : "Draft"}
               </span>
               {p.isAiEnhanced && (
                 <span className="ai-badge">
-                  <SparklesIcon size={12} /> AI Verified Craft
+                  <SparklesIcon size={12} /> AI Enhanced
                 </span>
               )}
             </div>
           </div>
 
-          {/* Simulated Artisan Certificate Card */}
+          {/* Genuine QR Code & Digital GI Pass Card */}
           <div className="artisan-certificate-card">
             <div className="cert-header">
-              <ShieldCheckIcon size={22} className="cert-icon" />
+              <ShieldCheckIcon size={24} className="cert-icon" />
               <div>
                 <h4 className="cert-title">Digital GI & Authenticity Pass</h4>
                 <span className="cert-sub">Verified Handmade Heritage</span>
               </div>
             </div>
+
             <p className="cert-desc">
-              Origin: <strong>{p.region || "India"}</strong> • Artisan: <strong>Shanti Devi</strong> (ID: ART-26090)
+              Origin: <strong>{p.region || "India"}</strong> • Artisan: <strong>Shanti Devi</strong> (Pass ID: ART-26090-{p.id || "01"})
             </p>
-            <div className="cert-qr-mock">
-              <div className="qr-box-mock">
-                <span className="qr-simulated-label">Simulated QR Link Tag</span>
-                <span className="qr-item-id">ID: {p.id}</span>
+
+            <div className="cert-qr-real-container">
+              <div className="qr-img-wrapper">
+                <img
+                  src={`http://localhost:8080/api/products/${p.id}/qr`}
+                  alt={`QR code for ${p.name}`}
+                  className="qr-img-real"
+                  onError={(e) => {
+                    // Fallback to quick QR api if offline
+                    e.target.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(publicShowcaseUrl)}`;
+                  }}
+                />
               </div>
-              <button
-                type="button"
-                className="btn-link-sm"
-                onClick={handleCopyLink}
-              >
-                <CopyIcon size={14} /> Copy Link
-              </button>
+
+              <div className="qr-details-side">
+                <span className="qr-scan-hint">Scan with phone camera to open public buyer showcase</span>
+                <div className="qr-btn-group">
+                  <button
+                    type="button"
+                    className="btn-pill btn-pill--sm"
+                    onClick={handleDownloadQr}
+                  >
+                    <DownloadIcon size={13} /> Save QR PNG
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-pill btn-pill--sm"
+                    onClick={handleCopyLink}
+                  >
+                    <CopyIcon size={13} /> Copy Link
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Information, Dual-Language Details, Pricing Breakdown */}
+        {/* Right Column: Information, Multilingual Tabs, Pricing Breakdown */}
         <div className="details-info-col">
           <div className="craft-type-pill-row">
             <span className="tag-chip">{p.craftType}</span>
             {p.craftTypeHindi && <span className="tag-chip tag-chip--hi">{p.craftTypeHindi}</span>}
           </div>
 
-          <h1 className="details-title-en">{p.name}</h1>
-          {p.nameHindi && <h2 className="details-title-hi">{p.nameHindi}</h2>}
+          {/* Multilingual Switcher Tabs */}
+          <div className="details-lang-tabs-bar">
+            <span className="details-lang-label">
+              <GlobeIcon size={16} /> Language View:
+            </span>
+            <div className="details-lang-tabs">
+              <button
+                type="button"
+                className={`details-lang-tab ${activeStoryLang === "en" ? "active" : ""}`}
+                onClick={() => setActiveStoryLang("en")}
+              >
+                English
+              </button>
+              <button
+                type="button"
+                className={`details-lang-tab ${activeStoryLang === "hi" ? "active" : ""}`}
+                onClick={() => setActiveStoryLang("hi")}
+              >
+                हिन्दी
+              </button>
+              <button
+                type="button"
+                className={`details-lang-tab ${activeStoryLang === "te" ? "active" : ""}`}
+                onClick={() => setActiveStoryLang("te")}
+              >
+                తెలుగు
+              </button>
+            </div>
+          </div>
+
+          <h1 className="details-title-en">{displayTitle}</h1>
 
           {/* Pricing Highlight Box */}
           <div className="details-price-box">
@@ -155,6 +279,10 @@ export const ProductDetailsPage = () => {
                 <span className="meta-cost-label">Crafting Time:</span>
                 <span className="meta-cost-val">{p.timeTakenHours || 16} Hours</span>
               </div>
+              <div className="meta-cost-item">
+                <span className="meta-cost-label">Fair Wage:</span>
+                <span className="meta-cost-val">Certified ✓</span>
+              </div>
             </div>
           </div>
 
@@ -172,29 +300,43 @@ export const ProductDetailsPage = () => {
               </div>
               <div className="spec-row">
                 <span className="spec-key">Size & Dimensions:</span>
-                <span className="spec-value">{p.size || "Standard Handcrafted Size"}</span>
+                <span className="spec-value">{p.size || p.dimensions || "Standard Handcrafted Size"}</span>
               </div>
               <div className="spec-row">
                 <span className="spec-key">Geographic Region:</span>
                 <span className="spec-value">{p.region || "Traditional Artisan Cluster"}</span>
               </div>
+              {p.craftProcess && (
+                <div className="spec-row">
+                  <span className="spec-key">Craft Technique:</span>
+                  <span className="spec-value">{p.craftProcess}</span>
+                </div>
+              )}
+              {p.culturalSignificance && (
+                <div className="spec-row">
+                  <span className="spec-key">Cultural Origin:</span>
+                  <span className="spec-value">{p.culturalSignificance}</span>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Descriptions */}
           <div className="details-descriptions">
-            <h3 className="specs-heading">Product Story & Background</h3>
-            <p className="desc-paragraph">{p.description}</p>
-            {p.descriptionHindi && (
-              <div className="desc-hindi-block">
-                <span className="lang-indicator">हिन्दी विवरण:</span>
-                <p className="desc-paragraph desc-paragraph--hi">{p.descriptionHindi}</p>
-              </div>
-            )}
+            <h3 className="specs-heading">Product Story & Background ({activeStoryLang.toUpperCase()})</h3>
+            <p className="desc-paragraph">{displayDescription}</p>
           </div>
 
           {/* Bottom Actions */}
           <div className="details-bottom-cta">
+            <button
+              type="button"
+              className="btn-secondary btn-lg"
+              onClick={handleDownloadPdf}
+              disabled={isDownloadingPdf}
+            >
+              <FileTextIcon size={20} /> Download Product Dossier (PDF)
+            </button>
             <button
               type="button"
               className="btn-primary btn-lg"
@@ -247,12 +389,12 @@ export const ProductDetailsPage = () => {
               </div>
 
               <div className="shareable-link-box">
-                <label className="share-box-label">Direct Buyer Showcase Link:</label>
+                <label className="share-box-label">Direct Buyer Showcase Link (from QR code):</label>
                 <div className="link-input-group">
                   <input
                     type="text"
                     readOnly
-                    value={p.marketLink || `https://srishticonnect.artisan.in/item/${p.id}`}
+                    value={publicShowcaseUrl}
                     className="link-input"
                   />
                   <button

@@ -32,6 +32,39 @@ const handleResponse = async (response) => {
   return response.json();
 };
 
+const normalizeProduct = (p) => {
+  if (!p) return null;
+  return {
+    ...p,
+    name: p.title || p.name || "Handcrafted Creation",
+    nameHindi: p.titleHindi || p.nameHindi || "",
+    nameTelugu: p.titleTelugu || p.nameTelugu || "",
+    description: p.description || "",
+    descriptionHindi: p.descriptionHindi || "",
+    descriptionTelugu: p.descriptionTelugu || "",
+    craftType: p.category || p.craftType || "Handmade",
+    material: p.materials || p.material || "",
+    color: p.color || "",
+    size: p.dimensions || p.size || "",
+    dimensions: p.dimensions || p.size || "",
+    region: p.region || "India",
+    craftProcess: p.craftProcess || "",
+    culturalSignificance: p.culturalSignificance || "",
+    uniqueness: p.uniqueness || "",
+    isAiEnhanced: p.isAiEnhanced || false,
+    voiceTranscript: p.voiceTranscript || "",
+    qrCodeUrl: p.qrCodeUrl || "",
+    price: p.recommendedPrice ?? p.price ?? 0,
+    minPrice: p.minimumPrice ?? p.minPrice ?? 0,
+    maxPrice: p.premiumPrice ?? p.maxPrice ?? 0,
+    recommendedPrice: p.recommendedPrice ?? p.price ?? 0,
+    materialCost: p.materialCost ?? 0,
+    timeTakenHours: p.laborHours ?? p.timeTakenHours ?? 0,
+    image: p.imageUrl || p.image || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80",
+    status: p.status || "Ready"
+  };
+};
+
 export const productService = {
   async getProducts() {
     const response = await fetch(`${API_BASE_URL}/products`, {
@@ -39,7 +72,8 @@ export const productService = {
       headers: getAuthHeaders()
     });
 
-    return handleResponse(response);
+    const data = await handleResponse(response);
+    return Array.isArray(data) ? data.map(normalizeProduct) : [];
   },
 
   async getProductById(id) {
@@ -48,7 +82,8 @@ export const productService = {
       headers: getAuthHeaders()
     });
 
-    return handleResponse(response);
+    const data = await handleResponse(response);
+    return normalizeProduct(data);
   },
 
   async addProduct(productData) {
@@ -56,21 +91,35 @@ export const productService = {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify({
-        title: productData.name || "",
+        title: productData.name || productData.title || "",
+        titleHindi: productData.nameHindi || productData.titleHindi || "",
+        titleTelugu: productData.nameTelugu || productData.titleTelugu || "",
         description: productData.description || "",
-        category: productData.craftType || "",
-        materials: productData.material || "",
+        descriptionHindi: productData.descriptionHindi || "",
+        descriptionTelugu: productData.descriptionTelugu || "",
+        category: productData.craftType || productData.category || "",
+        materials: productData.material || productData.materials || "",
+        color: productData.color || "",
+        dimensions: productData.size || productData.dimensions || "",
+        region: productData.region || "India",
+        craftProcess: productData.craftProcess || "",
+        culturalSignificance: productData.culturalSignificance || "",
+        uniqueness: productData.uniqueness || "",
+        isAiEnhanced: productData.isAiEnhanced || false,
+        voiceTranscript: productData.voiceTranscript || "",
+        qrCodeUrl: productData.qrCodeUrl || "",
         materialCost: Number(productData.materialCost) || 0,
-        laborHours: Number(productData.timeTakenHours) || 0,
-        minimumPrice: Number(productData.minPrice) || 0,
-        recommendedPrice: Number(productData.price) || 0,
-        premiumPrice: Number(productData.maxPrice) || 0,
-        imageUrl: productData.image || "",
+        laborHours: Number(productData.timeTakenHours || productData.laborHours) || 0,
+        minimumPrice: Number(productData.minPrice || productData.minimumPrice) || 0,
+        recommendedPrice: Number(productData.price || productData.recommendedPrice) || 0,
+        premiumPrice: Number(productData.maxPrice || productData.premiumPrice) || 0,
+        imageUrl: productData.image || productData.imageUrl || "",
         status: productData.status || "Ready"
       })
     });
 
-    return handleResponse(response);
+    const data = await handleResponse(response);
+    return normalizeProduct(data);
   },
 
   async updateProduct(id, productData) {
@@ -79,28 +128,34 @@ export const productService = {
       headers: getAuthHeaders(),
       body: JSON.stringify({
         title: productData.name || productData.title || "",
+        titleHindi: productData.nameHindi || productData.titleHindi || "",
+        titleTelugu: productData.nameTelugu || productData.titleTelugu || "",
         description: productData.description || "",
+        descriptionHindi: productData.descriptionHindi || "",
+        descriptionTelugu: productData.descriptionTelugu || "",
         category: productData.craftType || productData.category || "",
         materials: productData.material || productData.materials || "",
+        color: productData.color || "",
+        dimensions: productData.size || productData.dimensions || "",
+        region: productData.region || "India",
+        craftProcess: productData.craftProcess || "",
+        culturalSignificance: productData.culturalSignificance || "",
+        uniqueness: productData.uniqueness || "",
+        isAiEnhanced: productData.isAiEnhanced || false,
+        voiceTranscript: productData.voiceTranscript || "",
+        qrCodeUrl: productData.qrCodeUrl || "",
         materialCost: Number(productData.materialCost) || 0,
-        laborHours: Number(
-          productData.timeTakenHours || productData.laborHours
-        ) || 0,
-        minimumPrice: Number(
-          productData.minPrice || productData.minimumPrice
-        ) || 0,
-        recommendedPrice: Number(
-          productData.price || productData.recommendedPrice
-        ) || 0,
-        premiumPrice: Number(
-          productData.maxPrice || productData.premiumPrice
-        ) || 0,
+        laborHours: Number(productData.timeTakenHours || productData.laborHours) || 0,
+        minimumPrice: Number(productData.minPrice || productData.minimumPrice) || 0,
+        recommendedPrice: Number(productData.price || productData.recommendedPrice) || 0,
+        premiumPrice: Number(productData.maxPrice || productData.premiumPrice) || 0,
         imageUrl: productData.image || productData.imageUrl || "",
         status: productData.status || "Ready"
       })
     });
 
-    return handleResponse(response);
+    const data = await handleResponse(response);
+    return normalizeProduct(data);
   },
 
   async updateStatus(id, status) {
@@ -119,7 +174,6 @@ export const productService = {
     });
 
     await handleResponse(response);
-
     return true;
   }
 };

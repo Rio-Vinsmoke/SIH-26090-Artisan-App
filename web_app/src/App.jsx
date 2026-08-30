@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { AppProvider, useApp } from "./context/AppContext";
 import { Header } from "./components/layout/Header";
 import { Sidebar } from "./components/layout/Sidebar";
@@ -9,10 +10,40 @@ import { CatalogPage } from "./pages/CatalogPage";
 import { ProductDetailsPage } from "./pages/ProductDetailsPage";
 import { MarketLinkagePage } from "./pages/MarketLinkagePage";
 import { HelpPage } from "./pages/HelpPage";
+import { PublicProductShowcasePage } from "./pages/PublicProductShowcasePage";
 import "./App.css";
 
 const MainContentRouter = () => {
   const { currentScreen, isAuthenticated } = useApp();
+  const [publicItemId, setPublicItemId] = useState(null);
+
+  useEffect(() => {
+    // Check if the current URL path or search query is a public QR scan link
+    const pathname = window.location.pathname;
+    const searchParams = new URLSearchParams(window.location.search);
+
+    if (pathname.startsWith("/item/")) {
+      const id = pathname.replace("/item/", "").split("/")[0];
+      if (id) setPublicItemId(id);
+    } else if (searchParams.get("item")) {
+      setPublicItemId(searchParams.get("item"));
+    } else if (searchParams.get("view") === "item" && searchParams.get("id")) {
+      setPublicItemId(searchParams.get("id"));
+    }
+  }, []);
+
+  // If viewing a public QR showcase link, render showcase directly without authentication requirement
+  if (publicItemId) {
+    return (
+      <PublicProductShowcasePage
+        productId={publicItemId}
+        onBackToApp={() => {
+          window.history.pushState({}, "", "/");
+          setPublicItemId(null);
+        }}
+      />
+    );
+  }
 
   // If user is not authenticated or explicitly on login screen, show LoginPage
   if (!isAuthenticated || currentScreen === "login") {

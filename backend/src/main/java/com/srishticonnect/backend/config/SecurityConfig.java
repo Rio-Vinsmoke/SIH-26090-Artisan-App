@@ -66,6 +66,13 @@ public class SecurityConfig {
                         // Normal authentication APIs
                         .requestMatchers("/api/auth/**").permitAll()
 
+                        // Public product showcase, QR codes, and PDF dossiers (for buyers / QR scanners)
+                        .requestMatchers(
+                                "/api/products/public/**",
+                                "/api/products/*/qr",
+                                "/api/products/*/pdf"
+                        ).permitAll()
+
                         // Google OAuth2 endpoints
                         .requestMatchers(
                                 "/oauth2/**",

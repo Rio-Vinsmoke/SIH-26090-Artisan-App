@@ -1,8 +1,24 @@
-import { SparklesIcon, IndianRupeeIcon, ChevronLeftIcon, EditIcon, CheckIcon } from "../common/Icons";
+import { useState } from "react";
+import { SparklesIcon, IndianRupeeIcon, ChevronLeftIcon, EditIcon, CheckIcon, GlobeIcon, ShieldCheckIcon } from "../common/Icons";
 import { useApp } from "../../context/AppContext";
 
 export const Step5Preview = ({ formData, onSave, onEditStep, onBack }) => {
   const { t } = useApp();
+  const [activePreviewLang, setActivePreviewLang] = useState("en");
+
+  const displayTitle =
+    activePreviewLang === "hi" && formData.nameHindi
+      ? formData.nameHindi
+      : activePreviewLang === "te" && formData.nameTelugu
+      ? formData.nameTelugu
+      : formData.name || "Handcrafted Artisan Creation";
+
+  const displayDescription =
+    activePreviewLang === "hi" && formData.descriptionHindi
+      ? formData.descriptionHindi
+      : activePreviewLang === "te" && formData.descriptionTelugu
+      ? formData.descriptionTelugu
+      : formData.description || "Authentic handmade craft.";
 
   return (
     <div className="step-card">
@@ -11,7 +27,7 @@ export const Step5Preview = ({ formData, onSave, onEditStep, onBack }) => {
         <div className="title-with-ai-badge">
           <h2 className="step-card__title">{t.step5Title}</h2>
           <span className="ai-chip">
-            <CheckIcon size={14} /> Ready for Catalog
+            <CheckIcon size={14} /> Ready for Catalog & ONDC
           </span>
         </div>
         <p className="step-card__subtitle">{t.previewSubtitle}</p>
@@ -40,8 +56,14 @@ export const Step5Preview = ({ formData, onSave, onEditStep, onBack }) => {
               className="btn-edit-shortcut"
               onClick={() => onEditStep(1)}
             >
-              <EditIcon size={14} /> Change Photo
+              <EditIcon size={14} /> Change Photo (Step 1)
             </button>
+
+            {/* Simulated Authenticity Stamp */}
+            <div className="artisan-stamp-box">
+              <ShieldCheckIcon size={18} className="text-success" />
+              <span>Digital GI Authenticity Pass • Fair Craft Guaranteed</span>
+            </div>
           </div>
 
           <div className="preview-details-col">
@@ -50,17 +72,40 @@ export const Step5Preview = ({ formData, onSave, onEditStep, onBack }) => {
               <span className="region-pill">{formData.region || "Traditional Craft"}</span>
             </div>
 
-            <h3 className="preview-product-title">{formData.name || "Handmade Craft"}</h3>
-            {formData.nameHindi && (
-              <h4 className="preview-product-title-hi">{formData.nameHindi}</h4>
-            )}
+            {/* Trilingual Preview Switcher Tabs */}
+            <div className="preview-lang-tabs">
+              <button
+                type="button"
+                className={`preview-lang-btn ${activePreviewLang === "en" ? "active" : ""}`}
+                onClick={() => setActivePreviewLang("en")}
+              >
+                English
+              </button>
+              <button
+                type="button"
+                className={`preview-lang-btn ${activePreviewLang === "hi" ? "active" : ""}`}
+                onClick={() => setActivePreviewLang("hi")}
+              >
+                हिन्दी
+              </button>
+              <button
+                type="button"
+                className={`preview-lang-btn ${activePreviewLang === "te" ? "active" : ""}`}
+                onClick={() => setActivePreviewLang("te")}
+              >
+                తెలుగు
+              </button>
+            </div>
+
+            <h3 className="preview-product-title">{displayTitle}</h3>
 
             <div className="preview-price-highlight">
-              <span className="price-tag-label">Final Catalog Price:</span>
+              <span className="price-tag-label">Artisan Fair Price:</span>
               <div className="price-tag-value">
                 <IndianRupeeIcon size={24} />
                 <span>{(Number(formData.price) || 950).toLocaleString("en-IN")}</span>
               </div>
+              <span className="fair-wage-tag">Fair Wage Certified ✓</span>
             </div>
 
             {/* Specifications Grid */}
@@ -85,15 +130,10 @@ export const Step5Preview = ({ formData, onSave, onEditStep, onBack }) => {
 
             {/* Story */}
             <div className="preview-description-box">
-              <span className="desc-heading">Craft Story (English):</span>
-              <p className="desc-text">{formData.description || "Authentic handmade craft."}</p>
-
-              {formData.descriptionHindi && (
-                <>
-                  <span className="desc-heading">शिल्प विवरण (Hindi):</span>
-                  <p className="desc-text desc-text-hi">{formData.descriptionHindi}</p>
-                </>
-              )}
+              <span className="desc-heading">
+                Craft Heritage Story ({activePreviewLang === "hi" ? "हिन्दी" : activePreviewLang === "te" ? "తెలుగు" : "English"}):
+              </span>
+              <p className="desc-text">{displayDescription}</p>
             </div>
 
             <div className="preview-action-row">
@@ -109,7 +149,7 @@ export const Step5Preview = ({ formData, onSave, onEditStep, onBack }) => {
                 className="btn-secondary btn-sm"
                 onClick={() => onEditStep(4)}
               >
-                <EditIcon size={14} /> Edit AI Details (Step 4)
+                <EditIcon size={14} /> Edit Multilingual Details (Step 4)
               </button>
             </div>
           </div>
