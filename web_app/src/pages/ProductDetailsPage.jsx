@@ -12,16 +12,20 @@ import {
   DownloadIcon,
   GlobeIcon,
   EyeIcon,
-  FileTextIcon
+  FileTextIcon,
+  Trash2Icon,
+  AlertTriangleIcon
 } from "../components/common/Icons";
 import { getPublicProductUrl, shareProduct, downloadProductPdf } from "../services/productService";
 import { API_BASE_URL } from "../services/apiConfig";
 
 export const ProductDetailsPage = () => {
-  const { selectedProduct, updateProductStatus, navigateTo, showToast, t } = useApp();
+  const { selectedProduct, updateProductStatus, deleteProduct, navigateTo, showToast, t } = useApp();
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [activeStoryLang, setActiveStoryLang] = useState("en");
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   if (!selectedProduct) {
     return (
@@ -65,6 +69,19 @@ export const ProductDetailsPage = () => {
   const handleViewPublicShowcase = () => {
     if (publicShowcaseUrl) {
       window.open(publicShowcaseUrl, "_blank");
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await deleteProduct(p.id);
+      setShowDeleteModal(false);
+      navigateTo("catalog");
+    } catch (err) {
+      console.error("Error deleting product:", err);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -117,6 +134,14 @@ export const ProductDetailsPage = () => {
             onClick={() => navigateTo("add_product", p, 3)}
           >
             <EditIcon size={16} /> Edit Product
+          </button>
+          <button
+            type="button"
+            className="btn-danger-outline"
+            onClick={() => setShowDeleteModal(true)}
+            title="Delete this craft creation"
+          >
+            <Trash2Icon size={16} /> Delete
           </button>
           <button
             type="button"
@@ -409,6 +434,69 @@ export const ProductDetailsPage = () => {
                 onClick={handleSendToMarketplace}
               >
                 <CheckIcon size={18} /> Confirm & Mark as Sent to Market
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="modal-overlay" onClick={() => !isDeleting && setShowDeleteModal(false)}>
+          <div className="modal-card delete-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="delete-modal-title-wrap">
+                <div className="delete-warning-icon">
+                  <AlertTriangleIcon size={22} className="text-danger" />
+                </div>
+                <h3 className="modal-title">Delete Craft Creation?</h3>
+              </div>
+              <button
+                type="button"
+                className="btn-close-modal"
+                onClick={() => !isDeleting && setShowDeleteModal(false)}
+                disabled={isDeleting}
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div className="delete-product-preview-card">
+                <img
+                  src={p.image || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80"}
+                  alt={p.name}
+                  className="delete-product-thumb"
+                />
+                <div className="delete-product-info">
+                  <h4 className="delete-product-name">{p.name}</h4>
+                  {p.nameHindi && <span className="delete-product-name-hi">{p.nameHindi}</span>}
+                  <span className="delete-product-tag">{p.craftType}</span>
+                </div>
+              </div>
+
+              <p className="delete-warning-text">
+                Are you sure you want to permanently delete <strong>{p.name}</strong> from your collection? This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn-danger btn-confirm-delete"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+              >
+                <Trash2Icon size={16} />
+                {isDeleting ? "Deleting..." : "Delete Permanently"}
               </button>
             </div>
           </div>

@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { EyeIcon, Share2Icon, SparklesIcon, IndianRupeeIcon, DownloadIcon, FileTextIcon } from "./Icons";
+import { EyeIcon, Share2Icon, SparklesIcon, IndianRupeeIcon, DownloadIcon, Trash2Icon } from "./Icons";
 import { useApp } from "../../context/AppContext";
 import { shareProduct, downloadProductPdf, getPublicProductUrl } from "../../services/productService";
 
-export const ProductCard = ({ product, onSelect }) => {
+export const ProductCard = ({ product, onSelect, onDelete }) => {
   const { language, t, showToast } = useApp();
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -207,6 +207,22 @@ export const ProductCard = ({ product, onSelect }) => {
             <DownloadIcon size={15} />
             <span>{isDownloading ? "PDF..." : "PDF"}</span>
           </button>
+
+          {onDelete && (
+            <button
+              type="button"
+              className="btn-card-action btn-card-action--delete"
+              title="Delete Product from Collection"
+              aria-label={`Delete ${displayName}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(product);
+              }}
+            >
+              <Trash2Icon size={15} />
+              <span>Delete</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

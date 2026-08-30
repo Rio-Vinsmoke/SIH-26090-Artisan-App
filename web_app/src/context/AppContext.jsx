@@ -372,6 +372,29 @@ export const AppProvider = ({ children }) => {
   };
 
 
+  // ================= DELETE PRODUCT =================
+
+  const deleteProduct = async (productId) => {
+    try {
+      await productService.deleteProduct(productId);
+
+      // Remove from local state
+      setProducts((prev) => prev.filter((p) => p.id !== productId));
+
+      if (selectedProduct && selectedProduct.id === productId) {
+        setSelectedProduct(null);
+      }
+
+      showToast("🗑️ Product deleted successfully from catalog.");
+      return true;
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+      showToast(`⚠️ ${error.message || "Failed to delete product"}`);
+      throw error;
+    }
+  };
+
+
   // ================= AUDIO GUIDE =================
 
   const toggleAudioGuide = () => {
@@ -442,6 +465,7 @@ export const AppProvider = ({ children }) => {
 
         addProduct,
         updateProductStatus,
+        deleteProduct,
 
         selectedProduct,
         setSelectedProduct,
