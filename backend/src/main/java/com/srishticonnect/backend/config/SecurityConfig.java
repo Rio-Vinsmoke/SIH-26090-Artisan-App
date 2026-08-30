@@ -5,6 +5,7 @@ import com.srishticonnect.backend.security.OAuth2LoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -12,7 +13,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -49,32 +49,28 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // Enable CORS for React frontend
+                // Enable CORS
                 .cors(Customizer.withDefaults())
 
-                // Disable CSRF for API authentication
+                // Disable CSRF for API / stateless JWT authentication
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // OAuth2 needs a temporary session during Google login
+                // Maintain HTTP session across OAuth2 redirection flow
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                 )
 
                 .authorizeHttpRequests(auth -> auth
                         // Allow CORS preflight requests
-                        .requestMatchers(
-                                org.springframework.http.HttpMethod.OPTIONS,
-                                "/**"
-                        ).permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Normal authentication APIs
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // Auth & Login endpoints
+                        .requestMatchers("/api/auth/**", "/login/**", "/error").permitAll()
 
-                        // Public product showcase, QR codes, and PDF dossiers (for buyers / QR scanners)
+                        // Public product showcase, QR codes, and PDF dossiers
                         .requestMatchers(
                                 "/api/products/public/**",
                                 "/api/products/*/qr",
@@ -94,23 +90,12 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                // Google OAuth2 login
+                // Google OAuth2 login configuration
                 .oauth2Login(oauth2 -> oauth2
-
-                        .authorizationEndpoint(authorization ->
-                                authorization
-                                        .authorizationRequestRepository(
-                                                new HttpSessionOAuth2AuthorizationRequestRepository()
-                                        )
-                        )
-
-                        // IMPORTANT:
-                        // After successful Google login,
-                        // send user to our custom success handler
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
 
-                // JWT authentication filter
+                // JWT Filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
@@ -143,18 +128,9 @@ public class SecurityConfig {
 
         configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedOrigins(origins.stream().distinct().toList());
-
         configuration.setAllowedMethods(
-                List.of(
-                        "GET",
-                        "POST",
-                        "PUT",
-                        "DELETE",
-                        "OPTIONS",
-                        "PATCH"
-                )
+                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
         );
-
         configuration.setAllowedHeaders(
                 List.of(
                         "Authorization",
@@ -166,23 +142,13 @@ public class SecurityConfig {
                         "Access-Control-Request-Headers"
                 )
         );
-
         configuration.setExposedHeaders(
-                List.of(
-                        "Authorization",
-                        "Content-Disposition"
-                )
+                List.of("Authorization", "Content-Disposition")
         );
-
         configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration(
-                "/**",
-                configuration
-        );
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
