@@ -11,9 +11,10 @@ import {
   CopyIcon,
   DownloadIcon,
   GlobeIcon,
-  QrCodeIcon,
+  EyeIcon,
   FileTextIcon
 } from "../components/common/Icons";
+import { getPublicProductUrl, shareProduct, downloadProductPdf } from "../services/productService";
 
 export const ProductDetailsPage = () => {
   const { selectedProduct, updateProductStatus, navigateTo, showToast, t } = useApp();
@@ -33,15 +34,15 @@ export const ProductDetailsPage = () => {
   }
 
   const p = selectedProduct;
-  const publicShowcaseUrl = `${window.location.origin}/item/${p.id}`;
+  const publicShowcaseUrl = getPublicProductUrl(p.id);
 
-  const handleShareClick = () => {
-    setShowShareModal(true);
+  const handleShareClick = async () => {
+    await shareProduct(p, showToast);
   };
 
   const handleCopyLink = () => {
     navigator.clipboard?.writeText?.(publicShowcaseUrl);
-    showToast("🔗 Buyer showcase link copied to clipboard!");
+    showToast("Product link copied successfully!");
   };
 
   const handleSendToMarketplace = () => {
@@ -51,47 +52,19 @@ export const ProductDetailsPage = () => {
   };
 
   const handleDownloadPdf = async () => {
+    if (isDownloadingPdf) return;
     try {
       setIsDownloadingPdf(true);
-      showToast("📄 Generating official Artisan Heritage Dossier PDF...");
-
-      // Download from Spring Boot backend PDF endpoint
-      const response = await fetch(`http://localhost:8080/api/products/${p.id}/pdf`, {
-        method: "GET"
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to download PDF from server.");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `SrishtiConnect-Dossier-${p.id || "Craft"}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      showToast("🎉 Product Profile Dossier downloaded successfully!");
-    } catch (err) {
-      console.error("PDF Download error:", err);
-      showToast("⚠️ Could not download PDF directly from backend. Generating print view...");
-      window.print();
+      await downloadProductPdf(p, showToast);
     } finally {
       setIsDownloadingPdf(false);
     }
   };
 
-  const handleDownloadQr = () => {
-    const a = document.createElement("a");
-    a.href = `http://localhost:8080/api/products/${p.id}/qr`;
-    a.download = `SrishtiConnect-QR-Product-${p.id}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    showToast("📸 QR Code image downloaded!");
+  const handleViewPublicShowcase = () => {
+    if (publicShowcaseUrl) {
+      window.open(publicShowcaseUrl, "_blank");
+    }
   };
 
   const displayDescription =
@@ -124,10 +97,18 @@ export const ProductDetailsPage = () => {
           <button
             type="button"
             className="btn-secondary"
+            onClick={handleViewPublicShowcase}
+            title="Open Public Showcase Page"
+          >
+            <EyeIcon size={16} /> View Public Product
+          </button>
+          <button
+            type="button"
+            className="btn-secondary"
             onClick={handleDownloadPdf}
             disabled={isDownloadingPdf}
           >
-            <DownloadIcon size={16} /> {isDownloadingPdf ? "Generating PDF..." : "Download Product Profile (PDF)"}
+            <DownloadIcon size={16} /> {isDownloadingPdf ? "Generating PDF..." : "Download Product PDF"}
           </button>
           <button
             type="button"
@@ -192,21 +173,20 @@ export const ProductDetailsPage = () => {
                   alt={`QR code for ${p.name}`}
                   className="qr-img-real"
                   onError={(e) => {
-                    // Fallback to quick QR api if offline
                     e.target.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(publicShowcaseUrl)}`;
                   }}
                 />
               </div>
 
               <div className="qr-details-side">
-                <span className="qr-scan-hint">Scan with phone camera to open public buyer showcase</span>
+                <span className="qr-scan-hint">Scan with phone camera to open public buyer showcase without login</span>
                 <div className="qr-btn-group">
                   <button
                     type="button"
                     className="btn-pill btn-pill--sm"
-                    onClick={handleDownloadQr}
+                    onClick={handleShareClick}
                   >
-                    <DownloadIcon size={13} /> Save QR PNG
+                    <Share2Icon size={13} /> Share Link
                   </button>
                   <button
                     type="button"
@@ -318,6 +298,12 @@ export const ProductDetailsPage = () => {
                   <span className="spec-value">{p.culturalSignificance}</span>
                 </div>
               )}
+              {p.uniqueness && (
+                <div className="spec-row">
+                  <span className="spec-key">Uniqueness:</span>
+                  <span className="spec-value">{p.uniqueness}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -335,14 +321,14 @@ export const ProductDetailsPage = () => {
               onClick={handleDownloadPdf}
               disabled={isDownloadingPdf}
             >
-              <FileTextIcon size={20} /> Download Product Dossier (PDF)
+              <FileTextIcon size={20} /> {isDownloadingPdf ? "Generating PDF..." : "Download Product PDF"}
             </button>
             <button
               type="button"
               className="btn-primary btn-lg"
               onClick={handleShareClick}
             >
-              <Share2Icon size={20} /> Share for Market Linkage
+              <Share2Icon size={20} /> Share Product Link
             </button>
           </div>
         </div>
@@ -389,7 +375,7 @@ export const ProductDetailsPage = () => {
               </div>
 
               <div className="shareable-link-box">
-                <label className="share-box-label">Direct Buyer Showcase Link (from QR code):</label>
+                <label className="share-box-label">Direct Buyer Showcase Link:</label>
                 <div className="link-input-group">
                   <input
                     type="text"

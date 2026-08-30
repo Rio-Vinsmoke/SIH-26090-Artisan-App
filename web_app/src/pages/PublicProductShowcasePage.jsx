@@ -5,67 +5,56 @@ import {
   ShieldCheckIcon,
   GlobeIcon,
   DownloadIcon,
-  ChevronLeftIcon
+  ChevronLeftIcon,
+  Share2Icon
 } from "../components/common/Icons";
+import { shareProduct, downloadProductPdf, productService } from "../services/productService";
 
 export const PublicProductShowcasePage = ({ productId, onBackToApp }) => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeLang, setActiveLang] = useState("en");
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 3500);
+  };
 
   useEffect(() => {
     const fetchPublicProduct = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`http://localhost:8080/api/products/public/${productId}`);
-        if (res.ok) {
-          const data = await res.json();
-          setProduct({
-            ...data,
-            name: data.title || "Artisan Craft",
-            nameHindi: data.titleHindi || "",
-            nameTelugu: data.titleTelugu || "",
-            craftType: data.category || "Handicraft",
-            material: data.materials || "Natural Raw Materials",
-            price: data.recommendedPrice || 950,
-            image: data.imageUrl || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80"
-          });
+        const data = await productService.getPublicProductById(productId);
+        if (data) {
+          setProduct(data);
         } else {
-          // Fallback mock showcase for demonstration
-          setProduct({
-            id: productId,
-            name: "Handcrafted Terracotta Decorative Urli Pot",
-            nameHindi: "हस्तनिर्मित टेराकोटा सजावटी उर्ली पात्र",
-            nameTelugu: "చేతితో తయారు చేసిన టెర్రకోటా అలంకరణ పాత్ర",
-            description: "Traditional wheel-thrown earthen urli pot with hand-etched ethnic petal borders. Perfect for floating diyas and festive celebrations.",
-            descriptionHindi: "प्राकृतिक नदी की मिट्टी से चाक पर गढ़ा पारंपरिक उर्ली पात्र, जिस पर हाथ से सुंदर नक्काशी की गई है।",
-            descriptionTelugu: "సహజమైన నది బంకమట్టితో కుమ్మరి చక్రంపై తయారు చేసిన సాంప్రదాయ టెర్రకోటా పాత్ర. పండుగల అలంకరణకు అత్యుత్తమమైనది.",
-            craftType: "Terracotta Pottery",
-            material: "Natural River Clay & Mineral Slips",
-            color: "Earthy Terracotta Rust & Ochre",
-            dimensions: "10 inch Diameter x 4.5 inch Height",
-            region: "Gorakhpur, Uttar Pradesh",
-            price: 950,
-            materialCost: 250,
-            laborHours: 16,
-            image: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=800&q=80"
-          });
+          throw new Error("Product not found");
         }
       } catch (err) {
-        console.warn("Public fetch error:", err);
+        console.warn("Public fetch fallback notice:", err);
+        // Clean fallback product presentation if backend is starting up or offline
         setProduct({
           id: productId,
           name: "Handcrafted Terracotta Decorative Urli Pot",
           nameHindi: "हस्तनिर्मित टेराकोटा सजावटी उर्ली पात्र",
           nameTelugu: "చేతితో తయారు చేసిన టెర్రకోటా అలంకరణ పాత్ర",
-          description: "Traditional wheel-thrown earthen urli pot with hand-etched ethnic petal borders.",
+          description: "Traditional wheel-thrown earthen urli pot with hand-etched ethnic petal borders. Perfect for floating diyas and festive celebrations.",
+          descriptionHindi: "प्राकृतिक नदी की मिट्टी से चाक पर गढ़ा पारंपरिक उर्ली पात्र, जिस पर हाथ से सुंदर नक्काशी की गई है।",
+          descriptionTelugu: "సహజమైన నది బంకమట్టితో కుమ్మరి చక్రంపై తయారు చేసిన సాంప్రదాయ టెర్రకోటా పాత్ర. పండుగల అలంకరణకు అత్యుత్తమమైనది.",
           craftType: "Terracotta Pottery",
-          material: "Natural River Clay",
-          color: "Earthy Rust",
-          dimensions: "10 x 4.5 inches",
-          region: "Gorakhpur, UP",
+          material: "Natural River Clay & Mineral Slips",
+          color: "Earthy Terracotta Rust & Ochre",
+          dimensions: "10 inch Diameter x 4.5 inch Height",
+          region: "Gorakhpur, Uttar Pradesh",
+          craftProcess: "Hand wheel-thrown, sun-dried, freehand carved, and kiln fired",
+          culturalSignificance: "Symbolizes warmth, purity, and ancient Indian artisanal traditions",
+          uniqueness: "100% natural biodegradable river clay with organic slip burnish",
           price: 950,
+          materialCost: 250,
+          laborHours: 16,
           image: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=800&q=80"
         });
       } finally {
@@ -78,13 +67,19 @@ export const PublicProductShowcasePage = ({ productId, onBackToApp }) => {
     }
   }, [productId]);
 
-  const handleDownloadPdf = () => {
-    const a = document.createElement("a");
-    a.href = `http://localhost:8080/api/products/${productId}/pdf`;
-    a.download = `SrishtiConnect-Dossier-${productId}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const handleDownloadPdf = async () => {
+    if (!product || isDownloadingPdf) return;
+    try {
+      setIsDownloadingPdf(true);
+      await downloadProductPdf(product, showToast);
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
+  const handleShare = async () => {
+    if (!product) return;
+    await shareProduct(product, showToast);
   };
 
   if (loading) {
@@ -102,14 +97,14 @@ export const PublicProductShowcasePage = ({ productId, onBackToApp }) => {
       ? p.nameHindi
       : activeLang === "te" && p.nameTelugu
       ? p.nameTelugu
-      : p.name;
+      : p.name || p.title || "Handcrafted Artisan Creation";
 
   const displayDescription =
     activeLang === "hi" && p.descriptionHindi
       ? p.descriptionHindi
       : activeLang === "te" && p.descriptionTelugu
       ? p.descriptionTelugu
-      : p.description;
+      : p.description || "Authentic handmade creation.";
 
   return (
     <div className="public-showcase-page">
@@ -125,11 +120,16 @@ export const PublicProductShowcasePage = ({ productId, onBackToApp }) => {
           </span>
         </div>
 
-        {onBackToApp && (
-          <button type="button" className="btn-back-to-app" onClick={onBackToApp}>
-            <ChevronLeftIcon size={16} /> Artisan Portal
+        <div className="header-actions-wrap">
+          <button type="button" className="btn-share-header" onClick={handleShare}>
+            <Share2Icon size={16} /> Share Craft
           </button>
-        )}
+          {onBackToApp && (
+            <button type="button" className="btn-back-to-app" onClick={onBackToApp}>
+              <ChevronLeftIcon size={16} /> Artisan Portal
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Main Showcase Hero */}
@@ -138,7 +138,7 @@ export const PublicProductShowcasePage = ({ productId, onBackToApp }) => {
           {/* Photo & Seal */}
           <div className="showcase-photo-side">
             <div className="showcase-img-box">
-              <img src={p.image} alt={p.name} className="showcase-img" />
+              <img src={p.image || p.imageUrl} alt={p.name} className="showcase-img" />
               <div className="showcase-img-overlay">
                 <span className="ai-badge">
                   <SparklesIcon size={12} /> AI Verified Genuine Craft
@@ -156,10 +156,15 @@ export const PublicProductShowcasePage = ({ productId, onBackToApp }) => {
               </div>
               <p className="provenance-meta">
                 Crafted with pride by Master Artisan <strong>Shanti Devi</strong> in <strong>{p.region || "India"}</strong>.
-                100% Fair Wage Guaranteed.
+                100% Fair Wage Guaranteed. Zero middleman deduction.
               </p>
-              <button type="button" className="btn-download-dossier" onClick={handleDownloadPdf}>
-                <DownloadIcon size={16} /> Download Official PDF Dossier
+              <button
+                type="button"
+                className="btn-download-dossier"
+                onClick={handleDownloadPdf}
+                disabled={isDownloadingPdf}
+              >
+                <DownloadIcon size={16} /> {isDownloadingPdf ? "Generating PDF..." : "Download Official PDF Dossier"}
               </button>
             </div>
           </div>
@@ -167,7 +172,7 @@ export const PublicProductShowcasePage = ({ productId, onBackToApp }) => {
           {/* Details & Story */}
           <div className="showcase-info-side">
             <div className="craft-badge-row">
-              <span className="craft-tag-pill">{p.craftType}</span>
+              <span className="craft-tag-pill">{p.craftType || p.category}</span>
               <span className="region-pill">{p.region || "Traditional Cluster"}</span>
             </div>
 
@@ -208,7 +213,7 @@ export const PublicProductShowcasePage = ({ productId, onBackToApp }) => {
                 <span className="price-label">Artisan Direct Fair Price</span>
                 <div className="price-amount">
                   <IndianRupeeIcon size={26} />
-                  <span>{(Number(p.price) || 950).toLocaleString("en-IN")}</span>
+                  <span>{(Number(p.price || p.recommendedPrice) || 950).toLocaleString("en-IN")}</span>
                 </div>
               </div>
               <span className="zero-middleman-tag">0% Middleman Cut • 100% Fair Wage</span>
@@ -219,7 +224,7 @@ export const PublicProductShowcasePage = ({ productId, onBackToApp }) => {
               <div className="specs-table-grid">
                 <div className="spec-cell">
                   <span className="cell-label">Raw Material:</span>
-                  <span className="cell-value">{p.material}</span>
+                  <span className="cell-value">{p.material || p.materials}</span>
                 </div>
                 <div className="spec-cell">
                   <span className="cell-label">Color & Dye:</span>
@@ -237,7 +242,7 @@ export const PublicProductShowcasePage = ({ productId, onBackToApp }) => {
             </div>
 
             <div className="showcase-story-box">
-              <h3 className="story-title">Artisan Craft Tradition & Story</h3>
+              <h3 className="story-title">Artisan Craft Tradition & Story ({activeLang.toUpperCase()})</h3>
               <p className="story-body">{displayDescription}</p>
             </div>
 
@@ -245,21 +250,27 @@ export const PublicProductShowcasePage = ({ productId, onBackToApp }) => {
               <button
                 type="button"
                 className="btn-buy-ondc"
-                onClick={() => alert("Connecting to ONDC Buyer App for instant order checkout with direct artisan payment!")}
+                onClick={handleShare}
               >
-                🛍️ Buy Directly via ONDC Network
+                <Share2Icon size={18} /> Share with Buyers / Friends
               </button>
               <button
                 type="button"
                 className="btn-download-pdf-alt"
                 onClick={handleDownloadPdf}
+                disabled={isDownloadingPdf}
               >
-                <DownloadIcon size={18} /> Download Heritage Certificate (PDF)
+                <DownloadIcon size={18} /> {isDownloadingPdf ? "Downloading..." : "Download Product PDF"}
               </button>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="app-toast">{toastMessage}</div>
+      )}
     </div>
   );
 };

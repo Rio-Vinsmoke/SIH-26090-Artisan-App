@@ -72,7 +72,10 @@ public class ProductController {
 
     // Download Product Profile / GI Authenticity Certificate Dossier (PDF)
     @GetMapping("/{id}/pdf")
-    public ResponseEntity<byte[]> downloadProductPdf(@PathVariable Long id) {
+    public ResponseEntity<byte[]> downloadProductPdf(
+            @PathVariable Long id,
+            @RequestParam(value = "origin", required = false) String origin,
+            jakarta.servlet.http.HttpServletRequest request) {
         try {
             Optional<Product> optionalProduct = productService.getPublicProductById(id);
             if (optionalProduct.isEmpty()) {
@@ -80,13 +83,27 @@ public class ProductController {
             }
 
             Product product = optionalProduct.get();
-            byte[] pdfBytes = pdfExportService.generateProductPdf(product, "http://localhost:5173");
 
-            String filename = "SrishtiConnect-Product-" + id + ".pdf";
+            String baseUrl = origin;
+            if (baseUrl == null || baseUrl.isBlank()) {
+                String scheme = request.getScheme();
+                String host = request.getHeader("Host");
+                baseUrl = (host != null) ? (scheme + "://" + host) : "http://localhost:5173";
+            }
+
+            byte[] pdfBytes = pdfExportService.generateProductPdf(product, baseUrl);
+
+            String rawTitle = product.getTitle() != null ? product.getTitle() : "Product";
+            String sanitizedTitle = rawTitle.replaceAll("[^a-zA-Z0-9_-]", "_");
+            if (sanitizedTitle.length() > 35) {
+                sanitizedTitle = sanitizedTitle.substring(0, 35);
+            }
+            String filename = "SrishtiConnect_" + sanitizedTitle + "_" + id + ".pdf";
 
             return ResponseEntity.ok()
                     .header("Content-Type", "application/pdf")
                     .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                    .header("Access-Control-Expose-Headers", "Content-Disposition")
                     .body(pdfBytes);
         } catch (Exception e) {
             e.printStackTrace();

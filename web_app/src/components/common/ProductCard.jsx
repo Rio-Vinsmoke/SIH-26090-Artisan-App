@@ -1,8 +1,11 @@
-import { EyeIcon, Share2Icon, SparklesIcon, IndianRupeeIcon } from "./Icons";
+import { useState } from "react";
+import { EyeIcon, Share2Icon, SparklesIcon, IndianRupeeIcon, DownloadIcon, FileTextIcon } from "./Icons";
 import { useApp } from "../../context/AppContext";
+import { shareProduct, downloadProductPdf, getPublicProductUrl } from "../../services/productService";
 
-export const ProductCard = ({ product, onSelect, onQuickShare }) => {
-  const { language, t } = useApp();
+export const ProductCard = ({ product, onSelect }) => {
+  const { language, t, showToast } = useApp();
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const getStatusClass = (status) => {
     switch (status) {
@@ -43,6 +46,8 @@ export const ProductCard = ({ product, onSelect, onQuickShare }) => {
   const displayName =
     language === "hi" && product.nameHindi
       ? product.nameHindi
+      : language === "te" && product.nameTelugu
+      ? product.nameTelugu
       : productName;
 
   const secondaryName =
@@ -70,13 +75,43 @@ export const ProductCard = ({ product, onSelect, onQuickShare }) => {
     product.category ||
     "Handmade";
 
+  const handleCardClick = () => {
+    if (onSelect) {
+      onSelect(product);
+    }
+  };
+
+  const handleViewPublic = (e) => {
+    e.stopPropagation();
+    const publicUrl = getPublicProductUrl(product.id);
+    if (publicUrl) {
+      window.open(publicUrl, "_blank");
+    }
+  };
+
+  const handleShare = async (e) => {
+    e.stopPropagation();
+    await shareProduct(product, showToast);
+  };
+
+  const handleDownload = async (e) => {
+    e.stopPropagation();
+    if (isDownloading) return;
+    try {
+      setIsDownloading(true);
+      await downloadProductPdf(product, showToast);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div
       className="product-card"
-      onClick={() => onSelect(product)}
+      onClick={handleCardClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && onSelect(product)}
+      onKeyDown={(e) => e.key === "Enter" && handleCardClick()}
     >
       <div className="product-card__image-container">
         <img
@@ -132,31 +167,46 @@ export const ProductCard = ({ product, onSelect, onQuickShare }) => {
               </span>
             </div>
           </div>
+        </div>
 
-          <div
-            className="product-card__actions"
-            onClick={(e) => e.stopPropagation()}
+        {/* Action Toolbar for View, Share, Download PDF */}
+        <div
+          className="product-card__quick-actions"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            type="button"
+            className="btn-card-action btn-card-action--view"
+            title="View Public Showcase"
+            aria-label={`View public showcase for ${displayName}`}
+            onClick={handleViewPublic}
           >
-            <button
-              type="button"
-              className="btn-icon"
-              title="View full details"
-              aria-label={`View details for ${displayName}`}
-              onClick={() => onSelect(product)}
-            >
-              <EyeIcon size={18} />
-            </button>
+            <EyeIcon size={15} />
+            <span>View</span>
+          </button>
 
-            <button
-              type="button"
-              className="btn-icon btn-icon--primary"
-              title="Quick Share"
-              aria-label={`Share ${displayName}`}
-              onClick={() => onQuickShare(product)}
-            >
-              <Share2Icon size={18} />
-            </button>
-          </div>
+          <button
+            type="button"
+            className="btn-card-action btn-card-action--share"
+            title="Share Product Link"
+            aria-label={`Share ${displayName}`}
+            onClick={handleShare}
+          >
+            <Share2Icon size={15} />
+            <span>Share</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn-card-action btn-card-action--pdf"
+            title="Download Product PDF"
+            aria-label={`Download PDF for ${displayName}`}
+            onClick={handleDownload}
+            disabled={isDownloading}
+          >
+            <DownloadIcon size={15} />
+            <span>{isDownloading ? "PDF..." : "PDF"}</span>
+          </button>
         </div>
       </div>
     </div>

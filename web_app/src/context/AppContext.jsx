@@ -316,15 +316,10 @@ export const AppProvider = ({ children }) => {
 
     setSelectedProduct(created);
 
-
     showToast(
       translations[language]?.mockSavedSuccess ||
       "Creation saved to your products!"
     );
-
-
-    // Return to dashboard
-    navigateTo("dashboard");
 
     return created;
   };

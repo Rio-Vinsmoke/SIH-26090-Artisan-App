@@ -2,7 +2,7 @@ import { useState } from "react";
 import { SparklesIcon, IndianRupeeIcon, ChevronLeftIcon, EditIcon, CheckIcon, GlobeIcon, ShieldCheckIcon } from "../common/Icons";
 import { useApp } from "../../context/AppContext";
 
-export const Step5Preview = ({ formData, onSave, onEditStep, onBack }) => {
+export const Step5Preview = ({ formData, onSave, onEditStep, onBack, isSaving }) => {
   const { t } = useApp();
   const [activePreviewLang, setActivePreviewLang] = useState("en");
 
@@ -164,8 +164,9 @@ export const Step5Preview = ({ formData, onSave, onEditStep, onBack }) => {
           type="button"
           className="btn-primary btn-save-large"
           onClick={onSave}
+          disabled={isSaving}
         >
-          <CheckIcon size={20} /> {t.saveToCatalog}
+          <CheckIcon size={20} /> {isSaving ? "Publishing to Catalog..." : t.saveToCatalog}
         </button>
       </div>
     </div>
