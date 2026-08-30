@@ -5,6 +5,7 @@ import com.srishticonnect.backend.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -20,6 +21,9 @@ public class OAuth2LoginSuccessHandler
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
+
+    @Value("${frontend.url:http://localhost:5173}")
+    private String frontendUrl;
 
     public OAuth2LoginSuccessHandler(
             UserRepository userRepository,
@@ -85,9 +89,14 @@ public class OAuth2LoginSuccessHandler
         String token =
                 jwtService.generateToken(user);
 
+        // Dynamic base URL from configuration or fallback
+        String baseRedirect = (frontendUrl != null && !frontendUrl.isBlank())
+                ? frontendUrl.trim().replaceAll("/+$", "")
+                : "http://localhost:5173";
+
         // Redirect back to React application
         String redirectUrl =
-                "http://localhost:5173" +
+                baseRedirect +
                 "/?token=" +
                 URLEncoder.encode(
                         token,
@@ -97,17 +106,17 @@ public class OAuth2LoginSuccessHandler
                 user.getId() +
                 "&name=" +
                 URLEncoder.encode(
-                        user.getName(),
+                        user.getName() != null ? user.getName() : "Artisan",
                         StandardCharsets.UTF_8
                 ) +
                 "&email=" +
                 URLEncoder.encode(
-                        user.getEmail(),
+                        user.getEmail() != null ? user.getEmail() : "",
                         StandardCharsets.UTF_8
                 ) +
                 "&role=" +
                 URLEncoder.encode(
-                        user.getRole().name(),
+                        user.getRole() != null ? user.getRole().name() : "ARTISAN",
                         StandardCharsets.UTF_8
                 );
 

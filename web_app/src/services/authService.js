@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:8080/api";
+import { API_BASE_URL, GOOGLE_AUTH_URL } from "./apiConfig";
 
 const AUTH_STORAGE_KEY = "srishticonnect_auth";
 
@@ -114,9 +114,8 @@ export const authService = {
   // ================= GOOGLE LOGIN =================
   loginWithGoogle() {
 
-    // Redirect user to Spring Boot OAuth2 Google login
-    window.location.href =
-      "http://localhost:8080/oauth2/authorization/google";
+    // Redirect user to Spring Boot OAuth2 Google login endpoint
+    window.location.href = GOOGLE_AUTH_URL;
   },
 
 

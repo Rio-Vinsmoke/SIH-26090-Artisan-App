@@ -15,6 +15,7 @@ import {
   FileTextIcon
 } from "../components/common/Icons";
 import { getPublicProductUrl, shareProduct, downloadProductPdf } from "../services/productService";
+import { API_BASE_URL } from "../services/apiConfig";
 
 export const ProductDetailsPage = () => {
   const { selectedProduct, updateProductStatus, navigateTo, showToast, t } = useApp();
@@ -169,7 +170,7 @@ export const ProductDetailsPage = () => {
             <div className="cert-qr-real-container">
               <div className="qr-img-wrapper">
                 <img
-                  src={`http://localhost:8080/api/products/${p.id}/qr`}
+                  src={`${API_BASE_URL}/products/${p.id}/qr`}
                   alt={`QR code for ${p.name}`}
                   className="qr-img-real"
                   onError={(e) => {

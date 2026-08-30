@@ -4,6 +4,7 @@ import com.srishticonnect.backend.dto.ProductRequest;
 import com.srishticonnect.backend.entity.Product;
 import com.srishticonnect.backend.entity.User;
 import com.srishticonnect.backend.service.ProductService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -13,12 +14,14 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin(origins = "http://localhost:5173")
 public class ProductController {
 
     private final ProductService productService;
     private final com.srishticonnect.backend.service.QrCodeService qrCodeService;
     private final com.srishticonnect.backend.service.PdfExportService pdfExportService;
+
+    @Value("${frontend.url:http://localhost:5173}")
+    private String frontendUrl;
 
     public ProductController(ProductService productService,
                              com.srishticonnect.backend.service.QrCodeService qrCodeService,
@@ -38,7 +41,8 @@ public class ProductController {
 
         // Auto-generate QR code data URL if not present
         if (product.getQrCodeUrl() == null || product.getQrCodeUrl().isBlank()) {
-            String scanUrl = "http://localhost:5173/item/" + product.getId();
+            String baseUrl = (frontendUrl != null && !frontendUrl.isBlank()) ? frontendUrl.replaceAll("/+$", "") : "http://localhost:5173";
+            String scanUrl = baseUrl + "/item/" + product.getId();
             String qrDataUrl = qrCodeService.generateQrCodeDataUrl(scanUrl, 250, 250);
             product.setQrCodeUrl(qrDataUrl);
             product = productService.saveProduct(product);
@@ -57,9 +61,14 @@ public class ProductController {
 
     // Get QR Code Image (PNG)
     @GetMapping("/{id}/qr")
-    public ResponseEntity<byte[]> getProductQrCode(@PathVariable Long id) {
+    public ResponseEntity<byte[]> getProductQrCode(
+            @PathVariable Long id,
+            @RequestParam(value = "origin", required = false) String origin) {
         try {
-            String scanUrl = "http://localhost:5173/item/" + id;
+            String baseUrl = (origin != null && !origin.isBlank())
+                    ? origin.replaceAll("/+$", "")
+                    : ((frontendUrl != null && !frontendUrl.isBlank()) ? frontendUrl.replaceAll("/+$", "") : "http://localhost:5173");
+            String scanUrl = baseUrl + "/item/" + id;
             byte[] qrImageBytes = qrCodeService.generateQrCodeImage(scanUrl, 300, 300);
 
             return ResponseEntity.ok()
@@ -86,9 +95,13 @@ public class ProductController {
 
             String baseUrl = origin;
             if (baseUrl == null || baseUrl.isBlank()) {
-                String scheme = request.getScheme();
-                String host = request.getHeader("Host");
-                baseUrl = (host != null) ? (scheme + "://" + host) : "http://localhost:5173";
+                if (frontendUrl != null && !frontendUrl.isBlank()) {
+                    baseUrl = frontendUrl.replaceAll("/+$", "");
+                } else {
+                    String scheme = request.getScheme();
+                    String host = request.getHeader("Host");
+                    baseUrl = (host != null) ? (scheme + "://" + host) : "http://localhost:5173";
+                }
             }
 
             byte[] pdfBytes = pdfExportService.generateProductPdf(product, baseUrl);
@@ -111,56 +124,56 @@ public class ProductController {
         }
     }
 
-    // Get all products belonging to the logged-in user
+    // Get all products for logged-in artisan
     @GetMapping
-    public ResponseEntity<List<Product>> getMyProducts(
+    public ResponseEntity<List<Product>> getArtisanProducts(
             @AuthenticationPrincipal User user) {
 
-        List<Product> products = productService.getMyProducts(user);
+        List<Product> products =
+                productService.getMyProducts(user);
 
         return ResponseEntity.ok(products);
     }
 
-    // Get one product belonging to the logged-in user
+    // Get product by id
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(
             @PathVariable Long id,
             @AuthenticationPrincipal User user) {
 
-        Optional<Product> product =
+        Optional<Product> optionalProduct =
                 productService.getProductById(id, user);
 
-        return product.map(ResponseEntity::ok)
+        return optionalProduct
+                .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Update a product belonging to the logged-in user
+    // Update existing product
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(
             @PathVariable Long id,
             @RequestBody ProductRequest request,
             @AuthenticationPrincipal User user) {
 
-        Optional<Product> product =
+        Optional<Product> updatedProduct =
                 productService.updateProduct(id, request, user);
 
-        return product.map(ResponseEntity::ok)
+        return updatedProduct
+                .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Delete a product belonging to the logged-in user
+    // Delete product
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(
+    public ResponseEntity<Void> deleteProduct(
             @PathVariable Long id,
             @AuthenticationPrincipal User user) {
 
-        boolean deleted =
-                productService.deleteProduct(id, user);
-
+        boolean deleted = productService.deleteProduct(id, user);
         if (deleted) {
-            return ResponseEntity.ok("Product deleted successfully");
+            return ResponseEntity.noContent().build();
         }
-
         return ResponseEntity.notFound().build();
     }
 }

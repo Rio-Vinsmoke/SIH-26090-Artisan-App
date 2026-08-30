@@ -2,6 +2,7 @@ package com.srishticonnect.backend.config;
 
 import com.srishticonnect.backend.security.JwtAuthenticationFilter;
 import com.srishticonnect.backend.security.OAuth2LoginSuccessHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -18,6 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -26,6 +28,12 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
+    @Value("${frontend.url:http://localhost:5173}")
+    private String frontendUrl;
+
+    @Value("${cors.allowed-origins:http://localhost:5173,http://localhost:3000}")
+    private String allowedOrigins;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
@@ -73,6 +81,9 @@ public class SecurityConfig {
                                 "/api/products/*/pdf"
                         ).permitAll()
 
+                        // AI Processing APIs
+                        .requestMatchers("/api/ai/**").permitAll()
+
                         // Google OAuth2 endpoints
                         .requestMatchers(
                                 "/oauth2/**",
@@ -111,12 +122,27 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration configuration =
-                new CorsConfiguration();
+        CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(
-                List.of("http://localhost:5173")
-        );
+        List<String> origins = new ArrayList<>();
+        origins.add("http://localhost:5173");
+        origins.add("http://localhost:3000");
+        origins.add("http://localhost:8080");
+
+        if (frontendUrl != null && !frontendUrl.isBlank()) {
+            origins.add(frontendUrl.trim().replaceAll("/+$", ""));
+        }
+
+        if (allowedOrigins != null && !allowedOrigins.isBlank()) {
+            for (String origin : allowedOrigins.split(",")) {
+                if (!origin.isBlank()) {
+                    origins.add(origin.trim().replaceAll("/+$", ""));
+                }
+            }
+        }
+
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOrigins(origins.stream().distinct().toList());
 
         configuration.setAllowedMethods(
                 List.of(
@@ -124,19 +150,28 @@ public class SecurityConfig {
                         "POST",
                         "PUT",
                         "DELETE",
-                        "OPTIONS"
+                        "OPTIONS",
+                        "PATCH"
                 )
         );
 
         configuration.setAllowedHeaders(
                 List.of(
                         "Authorization",
-                        "Content-Type"
+                        "Content-Type",
+                        "X-Requested-With",
+                        "Accept",
+                        "Origin",
+                        "Access-Control-Request-Method",
+                        "Access-Control-Request-Headers"
                 )
         );
 
         configuration.setExposedHeaders(
-                List.of("Authorization")
+                List.of(
+                        "Authorization",
+                        "Content-Disposition"
+                )
         );
 
         configuration.setAllowCredentials(true);
