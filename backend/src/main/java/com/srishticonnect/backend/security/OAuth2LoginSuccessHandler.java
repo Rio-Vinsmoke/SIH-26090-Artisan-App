@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -27,19 +27,17 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
-    private final PasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder internalEncoder = new BCryptPasswordEncoder();
 
     @Value("${frontend.url:http://localhost:5173}")
     private String frontendUrl;
 
     public OAuth2LoginSuccessHandler(
             UserRepository userRepository,
-            JwtService jwtService,
-            PasswordEncoder passwordEncoder
+            JwtService jwtService
     ) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -68,13 +66,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 newUser.setEmail(email);
                 newUser.setName(name != null && !name.isBlank() ? name : "Google User");
                 newUser.setProfilePictureUrl(picture);
-                newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+                newUser.setPassword(internalEncoder.encode(UUID.randomUUID().toString()));
                 
                 try {
-                    // Set default role (defaults to ARTISAN)
                     newUser.setRole(Role.ARTISAN);
                 } catch (Exception e) {
-                    log.warn("Role assignment fallback handled: {}", e.getMessage());
+                    log.warn("Role assignment fallback: {}", e.getMessage());
                 }
 
                 return userRepository.save(newUser);
